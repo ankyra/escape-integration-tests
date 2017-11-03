@@ -1,0 +1,7 @@
+escape.yml
+test.db
+deps/
+releases/
+*.txt
+*.tpl
+.escape/
