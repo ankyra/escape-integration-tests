@@ -24,6 +24,9 @@ var CapturedDeployment *state_types.DeploymentState
 var CapturedStage string
 var ServerProcess *exec.Cmd
 
+const InventoryPath = "../deps/_/escape-inventory/escape-inventory"
+const EscapePath = "../deps/_/escape/escape"
+
 func StartInventory() {
 	go func() {
 		os.RemoveAll("test.db")
@@ -39,7 +42,11 @@ func StartInventory() {
 			"STORAGE_SETTINGS_PATH=releases/",
 			"PORT=7777",
 		}
-		ServerProcess = exec.Command("escape-inventory")
+		binary := InventoryPath
+		if !util.PathExists(binary) {
+			binary = "escape-inventory"
+		}
+		ServerProcess = exec.Command(binary)
 		ServerProcess.Env = env
 		if err := ServerProcess.Start(); err != nil {
 			panic(err)
@@ -65,7 +72,11 @@ func runEscape(cmd []string) error {
 	env := []string{
 		"ESCAPE_API_SERVER=http://localhost:7777",
 	}
-	command := []string{"escape", "-c", "/tmp/godog_escape_config"}
+	binary := EscapePath
+	if !util.PathExists(binary) {
+		binary = "escape"
+	}
+	command := []string{binary, "-c", "/tmp/godog_escape_config"}
 	for _, c := range cmd {
 		command = append(command, c)
 	}
