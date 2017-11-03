@@ -1,0 +1,9 @@
+name: heist/escape-integration-tests
+version: 0.0.@
+
+depends:
+- escape-core-latest as core
+- escape-latest as escape
+- escape-inventory-latest as inventory
+
+test: run_tests.sh

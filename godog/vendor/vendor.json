@@ -1,0 +1,85 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "DdY9Kw+VClMSZdjFUTRIxzHL/Mc=",
+			"path": "github.com/DATA-DOG/godog",
+			"revision": "70f777599da0f5de682b8848d356611c1738b695",
+			"revisionTime": "2017-07-02T16:22:23Z"
+		},
+		{
+			"checksumSHA1": "wbBy+PwuadGhTgX7IP05lwIR+Qs=",
+			"path": "github.com/DATA-DOG/godog/colors",
+			"revision": "70f777599da0f5de682b8848d356611c1738b695",
+			"revisionTime": "2017-07-02T16:22:23Z"
+		},
+		{
+			"checksumSHA1": "LCu7pjQ5nMZ505XwUU7tQQ1hBuM=",
+			"path": "github.com/DATA-DOG/godog/gherkin",
+			"revision": "70f777599da0f5de682b8848d356611c1738b695",
+			"revisionTime": "2017-07-02T16:22:23Z"
+		},
+		{
+			"checksumSHA1": "yiJqzNVMT4A7LyLbIZA/JHrbFbI=",
+			"path": "github.com/ankyra/escape/model/escape_plan",
+			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
+			"revisionTime": "2017-11-02T18:12:17Z"
+		},
+		{
+			"checksumSHA1": "1H9wEVFTFyarmuxupb1HfoB/LSQ=",
+			"path": "github.com/ankyra/escape/model/remote",
+			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
+			"revisionTime": "2017-11-02T18:12:17Z"
+		},
+		{
+			"checksumSHA1": "VeozQ+57MYmgUgpSVKdzQBcCGQ0=",
+			"path": "github.com/ankyra/escape/model/state",
+			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
+			"revisionTime": "2017-11-02T18:12:17Z"
+		},
+		{
+			"checksumSHA1": "8dYRwP9swTWRWoclA+FpuyIlTMs=",
+			"path": "github.com/ankyra/escape/model/state/local",
+			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
+			"revisionTime": "2017-11-02T18:12:17Z"
+		},
+		{
+			"checksumSHA1": "85Dp4IHss9KlxN/KXAm5KbD8990=",
+			"path": "github.com/ankyra/escape/model/state/remote",
+			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
+			"revisionTime": "2017-11-02T18:12:17Z"
+		},
+		{
+			"checksumSHA1": "NWSlmmx0ozG8pKEMEKzztchYbMY=",
+			"path": "github.com/ankyra/escape/util",
+			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
+			"revisionTime": "2017-11-02T18:12:17Z"
+		},
+		{
+			"checksumSHA1": "NNElWY1DDnkaMFqBDKoBL+UwUUQ=",
+			"path": "github.com/cbroglie/mustache",
+			"revision": "6857e4b493bdb8d4b1931446eb41704aeb4c28cb",
+			"revisionTime": "2016-10-20T19:33:16Z"
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"path": "golang.org/x/text/transform",
+			"revision": "836efe42bb4aa16aaa17b9c155d8813d336ed720",
+			"revisionTime": "2017-07-09T00:38:22Z"
+		},
+		{
+			"checksumSHA1": "Anof4bt0AU+Sa3R8Rq0KBnlpbaQ=",
+			"path": "golang.org/x/text/unicode/norm",
+			"revision": "836efe42bb4aa16aaa17b9c155d8813d336ed720",
+			"revisionTime": "2017-07-09T00:38:22Z"
+		},
+		{
+			"checksumSHA1": "KHOUE9QA14iPCFNIVs5X72MYdkA=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af",
+			"revisionTime": "2017-07-13T20:15:20Z"
+		}
+	],
+	"rootPath": "github.com/ankyra/escape-integration-tests/godog"
+}
