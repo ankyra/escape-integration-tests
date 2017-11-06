@@ -41,6 +41,7 @@ func StartInventory() {
 			"STORAGE_BACKEND=local",
 			"STORAGE_SETTINGS_PATH=releases/",
 			"PORT=7777",
+			"DEV=true",
 		}
 		binary := InventoryPath
 		if !util.PathExists(binary) {
@@ -61,6 +62,20 @@ func StartInventory() {
 			status = resp.StatusCode
 		}
 	}
+}
+
+func WipeInventory() error {
+	req, _ := http.NewRequest("DELETE", "http://localhost:7777/api/v1/internal/database", nil)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("Inventory database wipe failed")
+	}
+
+	return nil
 }
 
 func StopInventory() {
@@ -456,14 +471,23 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^I run the errand "([^"]*)" in "([^"]*)"$`, iRunTheErrandIn)
 	s.Step(`^I delete the file "([^"]*)"$`, iDeleteTheFile)
 
-	s.BeforeScenario(func(interface{}) {
+	s.BeforeSuite(func() {
 		StartInventory()
+	})
+
+	s.AfterSuite(func() {
+		StopInventory()
+	})
+
+	s.BeforeScenario(func(interface{}) {
+		if err := WipeInventory(); err != nil {
+			panic(err.Error())
+		}
 		os.Remove("escape.yml")
 		os.Remove("test.sh")
 	})
 
 	s.AfterScenario(func(interface{}, error) {
-		StopInventory()
 		os.Remove("escape.yml")
 		os.Remove("test.sh")
 	})
