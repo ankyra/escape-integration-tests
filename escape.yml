@@ -6,4 +6,10 @@ depends:
 - escape-latest as escape
 - escape-inventory-latest as inventory
 
+metadata:
+  core_version: $core.version
+  escape_version: $escape.version
+  inventory_version: $inventory.version
+  release_metadata_api_version: $core.metadata.release_metadata_api_version
+
 test: run_tests.sh
