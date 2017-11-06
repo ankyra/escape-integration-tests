@@ -483,8 +483,11 @@ func FeatureContext(s *godog.Suite) {
 		if err := WipeInventory(); err != nil {
 			panic(err.Error())
 		}
-		os.Remove("escape.yml")
-		os.Remove("test.sh")
+		os.RemoveAll("escape_state.json")
+		os.RemoveAll("escape.yml")
+		os.RemoveAll("releases/")
+		os.RemoveAll("deps/")
+		os.Mkdir("releases/", 0755)
 	})
 
 	s.AfterScenario(func(interface{}, error) {
