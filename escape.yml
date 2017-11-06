@@ -1,5 +1,5 @@
 name: heist/escape-integration-tests
-version: 0.0.@
+version: 0.1.@
 
 depends:
 - escape-core-latest as core
