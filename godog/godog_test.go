@@ -300,7 +300,7 @@ func iShouldSeeInTheOutput(value string) error {
 }
 
 func iBuildTheApplication() error {
-	return runEscape([]string{"build"})
+	return runEscape([]string{"run", "build"})
 }
 
 func iDeploy(arg1 string) error {
