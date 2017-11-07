@@ -304,7 +304,7 @@ func iBuildTheApplication() error {
 }
 
 func iDeploy(arg1 string) error {
-	err := runEscape([]string{"deploy", arg1})
+	err := runEscape([]string{"run", "deploy", arg1})
 	CapturedStage = "deploy"
 	return err
 }
