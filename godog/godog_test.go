@@ -310,7 +310,7 @@ func iDeploy(arg1 string) error {
 }
 
 func iReleaseTheApplication() error {
-	return runEscape([]string{"release", "-f"})
+	return runEscape([]string{"run", "release", "-f"})
 }
 
 func itHasAsADependency(dependency string) error {
