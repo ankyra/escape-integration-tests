@@ -7,50 +7,28 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ankyra/escape-integration-tests/godog/escape"
+
 	"github.com/DATA-DOG/godog"
 	state_types "github.com/ankyra/escape-core/state"
-	"github.com/ankyra/escape-core/util"
 	"github.com/ankyra/escape-integration-tests/godog/inventory"
 	"github.com/ankyra/escape/model/escape_plan"
 	"github.com/ankyra/escape/model/state"
-	eutil "github.com/ankyra/escape/util"
 	"gopkg.in/yaml.v2"
 )
 
-var CapturedStdout string
 var CapturedDeployment *state_types.DeploymentState
 var CapturedStage string
 
 const InventoryPath = "../deps/_/escape-inventory/escape-inventory"
 const EscapePath = "../deps/_/escape/escape"
 
-func runEscape(cmd []string) error {
-	rec := util.NewProcessRecorder()
-	env := []string{
-		"ESCAPE_API_SERVER=http://localhost:7777",
-	}
-	binary := EscapePath
-	if !util.PathExists(binary) {
-		binary = "escape"
-	}
-	command := []string{binary, "-c", "/tmp/godog_escape_config"}
-	for _, c := range cmd {
-		command = append(command, c)
-	}
-	stdout, err := rec.Record(command, env, eutil.NewLoggerDummy())
-	CapturedStdout = stdout
-	if err != nil {
-		fmt.Println(CapturedStdout)
-	}
-	return err
-}
-
 func aNewEscapePlanCalled(name string) error {
-	return runEscape([]string{"plan", "init", "-f", "-n", name})
+	return escape.Run([]string{"plan", "init", "-f", "-n", name})
 }
 
 func iPreviewThePlan() error {
-	return runEscape([]string{"plan", "preview"})
+	return escape.Run([]string{"plan", "preview"})
 }
 
 func inputVariableWithDefault(variableId, defaultValue string) error {
@@ -224,35 +202,35 @@ func itsCalculatedOutputIsSetTo(key, value string) error {
 }
 
 func iListTheErrandsInTheDeployment(deploymentName string) error {
-	return runEscape([]string{"errands", "list", "-d", deploymentName})
+	return escape.Run([]string{"errands", "list", "-d", deploymentName})
 }
 
 func iListTheLocalErrands() error {
-	return runEscape([]string{"errands", "list", "--local"})
+	return escape.Run([]string{"errands", "list", "--local"})
 }
 func iRunTheErrandIn(errand, deployment string) error {
-	return runEscape([]string{"errands", "run", "-d", deployment, errand})
+	return escape.Run([]string{"errands", "run", "-d", deployment, errand})
 }
 
 func iShouldSeeInTheOutput(value string) error {
-	if strings.Index(CapturedStdout, value) == -1 {
-		return fmt.Errorf("'%s' was not found in the output:\n%s", value, CapturedStdout)
+	if strings.Index(escape.CapturedStdout, value) == -1 {
+		return fmt.Errorf("'%s' was not found in the output:\n%s", value, escape.CapturedStdout)
 	}
 	return nil
 }
 
 func iBuildTheApplication() error {
-	return runEscape([]string{"run", "build"})
+	return escape.Run([]string{"run", "build"})
 }
 
 func iDeploy(arg1 string) error {
-	err := runEscape([]string{"run", "deploy", arg1})
+	err := escape.Run([]string{"run", "deploy", arg1})
 	CapturedStage = "deploy"
 	return err
 }
 
 func iReleaseTheApplication() error {
-	return runEscape([]string{"run", "release", "-f"})
+	return escape.Run([]string{"run", "release", "-f"})
 }
 
 func itHasAsADependency(dependency string) error {
@@ -348,7 +326,7 @@ func versionIsPresentInTheDeployState(deploymentName, version string) error {
 
 func iShouldHaveValidReleaseMetadata() error {
 	result := map[string]interface{}{}
-	err := json.Unmarshal([]byte(CapturedStdout), &result)
+	err := json.Unmarshal([]byte(escape.CapturedStdout), &result)
 	if err != nil {
 		return err
 	}
@@ -357,7 +335,7 @@ func iShouldHaveValidReleaseMetadata() error {
 
 func theMetadataShouldHaveItsSetTo(key, value string) error {
 	result := map[string]interface{}{}
-	err := json.Unmarshal([]byte(CapturedStdout), &result)
+	err := json.Unmarshal([]byte(escape.CapturedStdout), &result)
 	if err != nil {
 		return err
 	}
@@ -415,6 +393,7 @@ func FeatureContext(s *godog.Suite) {
 
 	s.BeforeSuite(func() {
 		inventory.Start(InventoryPath)
+		escape.EscapePath = EscapePath
 	})
 
 	s.AfterSuite(func() {
