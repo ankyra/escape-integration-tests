@@ -4,15 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/DATA-DOG/godog"
 	state_types "github.com/ankyra/escape-core/state"
 	"github.com/ankyra/escape-core/util"
+	"github.com/ankyra/escape-integration-tests/godog/inventory"
 	"github.com/ankyra/escape/model/escape_plan"
 	"github.com/ankyra/escape/model/state"
 	eutil "github.com/ankyra/escape/util"
@@ -22,65 +20,9 @@ import (
 var CapturedStdout string
 var CapturedDeployment *state_types.DeploymentState
 var CapturedStage string
-var ServerProcess *exec.Cmd
 
 const InventoryPath = "../deps/_/escape-inventory/escape-inventory"
 const EscapePath = "../deps/_/escape/escape"
-
-func StartInventory() {
-	go func() {
-		os.RemoveAll("test.db")
-		os.RemoveAll("escape_state.json")
-		os.RemoveAll("escape.yml")
-		os.RemoveAll("releases/")
-		os.RemoveAll("deps/")
-		os.Mkdir("releases/", 0755)
-		env := []string{
-			"DATABASE=sqlite",
-			"DATABASE_SETTINGS_PATH=test.db",
-			"STORAGE_BACKEND=local",
-			"STORAGE_SETTINGS_PATH=releases/",
-			"PORT=7777",
-			"DEV=true",
-		}
-		binary := InventoryPath
-		if !util.PathExists(binary) {
-			binary = "escape-inventory"
-		}
-		ServerProcess = exec.Command(binary)
-		ServerProcess.Env = env
-		if err := ServerProcess.Start(); err != nil {
-			panic(err)
-		}
-	}()
-
-	status := 0
-	for status != 200 {
-		time.Sleep(time.Second / 2)
-		resp, err := http.Get("http://localhost:7777/health")
-		if err == nil {
-			status = resp.StatusCode
-		}
-	}
-}
-
-func WipeInventory() error {
-	req, _ := http.NewRequest("DELETE", "http://localhost:7777/api/v1/internal/database", nil)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("Inventory database wipe failed")
-	}
-
-	return nil
-}
-
-func StopInventory() {
-	ServerProcess.Process.Kill()
-}
 
 func runEscape(cmd []string) error {
 	rec := util.NewProcessRecorder()
@@ -472,15 +414,15 @@ func FeatureContext(s *godog.Suite) {
 	s.Step(`^I delete the file "([^"]*)"$`, iDeleteTheFile)
 
 	s.BeforeSuite(func() {
-		StartInventory()
+		inventory.Start(InventoryPath)
 	})
 
 	s.AfterSuite(func() {
-		StopInventory()
+		inventory.Stop()
 	})
 
 	s.BeforeScenario(func(interface{}) {
-		if err := WipeInventory(); err != nil {
+		if err := inventory.Wipe(); err != nil {
 			panic(err.Error())
 		}
 		os.RemoveAll("escape_state.json")
