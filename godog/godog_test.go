@@ -14,11 +14,13 @@ const InventoryPath = "../deps/_/escape-inventory/escape-inventory"
 const EscapePath = "../deps/_/escape/escape"
 
 func FeatureContext(s *godog.Suite) {
+
+	escape.EscapePath = EscapePath
+
 	steps.AddSteps(s)
 
 	s.BeforeSuite(func() {
 		inventory.Start(InventoryPath)
-		escape.EscapePath = EscapePath
 	})
 
 	s.AfterSuite(func() {
