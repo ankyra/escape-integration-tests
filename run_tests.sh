@@ -16,5 +16,5 @@ docker run --rm --volumes-from src \
 docker run --rm \
     --volumes-from src \
     -w /go/src/github.com/ankyra/escape-integration-tests/godog \
-    golang:1.9.0 bash -c "go get github.com/DATA-DOG/godog/cmd/godog && godog"
+    golang:1.9.0 bash -c "go get github.com/DATA-DOG/godog/cmd/godog && godog -t \"~@wip\""
 docker rm src
