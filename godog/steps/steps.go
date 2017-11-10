@@ -56,6 +56,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^I list the local errands$`, iListTheLocalErrands)
 	s.Step(`^I run the errand "([^"]*)" in "([^"]*)"$`, iRunTheErrandIn)
 	s.Step(`^I delete the file "([^"]*)"$`, iDeleteTheFile)
+	s.Step(`I get the Escape plan field name "([^"]*)`, iGetEscapePlanField)
 }
 
 func aNewEscapePlanCalled(name string) error {
@@ -385,4 +386,8 @@ func theMetadataShouldHaveItsSetTo(key, value string) error {
 }
 func iDeleteTheFile(arg1 string) error {
 	return os.Remove(arg1)
+}
+
+func iGetEscapePlanField(fieldName string) error {
+	return escape.Run([]string{"plan", "get", fieldName})
 }
