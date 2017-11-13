@@ -2,7 +2,7 @@
 # Runs in Docker
 #
 escape-test:
-	escape build && escape test
+	escape run build && escape run test
 
 # Uses binaries on the PATH
 # Runs locally

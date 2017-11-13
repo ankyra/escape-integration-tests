@@ -20,8 +20,8 @@ jobs:
     - run: 
         name: Build Escape release
         command: |
-          escape build && escape test && if [ "$CIRCLE_BRANCH" = "master" ] ; then
-            escape release --skip-build && \
+          escape run build && escape run test && if [ "$CIRCLE_BRANCH" = "master" ] ; then
+            escape run release --skip-build && \
             curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/docker-escape/tree/master?circle-token=${CIRCLE_DOCKER_ESCAPE_TOKEN} && \
             curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/docker-escape-inventory/tree/master?circle-token=${CIRCLE_DOCKER_INVENTORY_TOKEN} && \
             curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/escape-docs/tree/master?circle-token=${CIRCLE_ESCAPE_DOCS_TOKEN}
