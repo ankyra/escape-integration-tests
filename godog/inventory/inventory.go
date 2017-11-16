@@ -21,7 +21,7 @@ func Start(inventoryPath string) {
 		os.RemoveAll("deps/")
 		os.Mkdir("releases/", 0755)
 		env := []string{
-			"DATABASE=sqlite",
+			"DATABASE=ql",
 			"DATABASE_SETTINGS_PATH=test.db",
 			"STORAGE_BACKEND=local",
 			"STORAGE_SETTINGS_PATH=releases/",
