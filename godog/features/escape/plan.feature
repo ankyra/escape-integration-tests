@@ -13,9 +13,6 @@ Feature: Retrieving fields from the Escape plan
       When I get the Escape plan field name "version"
       Then I should see "0.0.@" in the output
 
-    @wip
-    # BH - This scenario is blocked as the ProcessRecorder fails and I don't know enough about
-    # the process recorder to change it.
     Scenario: Get unknownEscape plan field
       Given a new Escape plan called "my-release"
       When I get the Escape plan field name "unknown field"

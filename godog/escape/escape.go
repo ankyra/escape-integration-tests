@@ -1,8 +1,6 @@
 package escape
 
 import (
-	"fmt"
-
 	"github.com/ankyra/escape/util"
 	eutil "github.com/ankyra/escape/util"
 )
@@ -23,10 +21,7 @@ func Run(cmd []string) error {
 	for _, c := range cmd {
 		command = append(command, c)
 	}
-	stdout, err := rec.Record(command, env, eutil.NewLoggerDummy())
+	stdout, _ := rec.Record(command, env, eutil.NewLoggerDummy())
 	CapturedStdout = stdout
-	if err != nil {
-		fmt.Println(CapturedStdout)
-	}
-	return err
+	return nil
 }
