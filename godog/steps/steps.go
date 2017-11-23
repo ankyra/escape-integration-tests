@@ -10,6 +10,7 @@ import (
 	"github.com/DATA-DOG/godog"
 	state_types "github.com/ankyra/escape-core/state"
 	"github.com/ankyra/escape-integration-tests/godog/escape"
+	"github.com/ankyra/escape/model/config"
 	"github.com/ankyra/escape/model/escape_plan"
 	"github.com/ankyra/escape/model/state"
 	yaml "gopkg.in/yaml.v2"
@@ -63,10 +64,53 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^"([^"]*)" is present in "([^"]*)" environment state$`, deploymentNameIsPresentInEnvironmentState)
 
 	s.Step(`I run "([^"]*)"`, runEscapeCmd)
+	s.Step(`I have the profile "([^"]*)" in my config`, addProfileToConfig)
+	s.Step(`I set "([^"]*)" to be the active profile`, setActiveProfile)
+
+	// Matchers
+
+	s.Step(`"([^"]*)" is the active profile in my config`, matchActiveProfileFromConfig)
+	s.Step(`"([^"]*)" is a profile in my config`, matchProfileFromConfig)
 }
 
 func runEscapeCmd(args string) error {
 	return escape.Run(strings.Split(args, " ")[1:])
+}
+
+func addProfileToConfig(profileName string) error {
+	return escape.Run([]string{"config", "create-profile", profileName})
+}
+
+func setActiveProfile(profileName string) error {
+	return escape.Run([]string{"config", "set-profile", profileName})
+}
+
+func matchActiveProfileFromConfig(profileName string) error {
+	c := config.NewEscapeConfig()
+	err := c.FromJson("/tmp/godog_escape_config")
+	if err != nil {
+		return err
+	}
+
+	if c.ActiveProfile != profileName {
+		return fmt.Errorf("'%s' did not match current active profile '%s'", profileName, c.ActiveProfile)
+	}
+
+	return nil
+}
+
+func matchProfileFromConfig(profileName string) error {
+	c := config.NewEscapeConfig()
+	err := c.FromJson("/tmp/godog_escape_config")
+	if err != nil {
+		return err
+	}
+
+	if c.Profiles[profileName] == nil {
+		return fmt.Errorf("'%s' was not found in profiles", profileName)
+	}
+
+	return nil
 }
 
 func aNewEscapePlanCalled(name string) error {

@@ -35,6 +35,7 @@ func FeatureContext(s *godog.Suite) {
 		os.RemoveAll("escape.yml")
 		os.RemoveAll("releases/")
 		os.RemoveAll("deps/")
+		os.RemoveAll("/tmp/godog_escape_config")
 		os.Mkdir("releases/", 0755)
 	})
 
