@@ -25,7 +25,8 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^the metadata should have its "([^"]*)" set to "([^"]*)"$`, theMetadataShouldHaveItsSetTo)
 	s.Step(`^I build the application$`, iBuildTheApplication)
 	s.Step(`^I build the application again$`, iBuildTheApplication)
-	s.Step(`^I deploy "([^"]*)"$`, iDeploy)
+	s.Step(`^I deploy "([^"]*)"$`, iDeployRelease)
+	s.Step(`^I deploy$`, iDeploy)
 	s.Step(`^"([^"]*)" version "([^"]*)" is present in the build state$`, versionIsPresentInTheBuildState)
 	s.Step(`^"([^"]*)" version "([^"]*)" is present in the deploy state$`, versionIsPresentInTheDeployState)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)"$`, inputVariableWithDefault)
@@ -57,6 +58,9 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^I run the errand "([^"]*)" in "([^"]*)"$`, iRunTheErrandIn)
 	s.Step(`^I delete the file "([^"]*)"$`, iDeleteTheFile)
 	s.Step(`I get the Escape plan field name "([^"]*)`, iGetEscapePlanField)
+	s.Step(`I promote "([^"]*)" to "([^"]*)"`, iPromote)
+	s.Step(`I promote "([^"]*)" as "([^"]*)" to "([^"]*)"`, iPromoteWithDifferentName)
+	s.Step(`^"([^"]*)" is present in "([^"]*)" environment state$`, deploymentNameIsPresentInEnvironmentState)
 }
 
 func aNewEscapePlanCalled(name string) error {
@@ -259,7 +263,13 @@ func iBuildTheApplication() error {
 	return escape.Run([]string{"run", "build"})
 }
 
-func iDeploy(arg1 string) error {
+func iDeploy() error {
+	err := escape.Run([]string{"run", "deploy"})
+	CapturedStage = "deploy"
+	return err
+}
+
+func iDeployRelease(arg1 string) error {
 	err := escape.Run([]string{"run", "deploy", arg1})
 	CapturedStage = "deploy"
 	return err
@@ -390,4 +400,26 @@ func iDeleteTheFile(arg1 string) error {
 
 func iGetEscapePlanField(fieldName string) error {
 	return escape.Run([]string{"plan", "get", fieldName})
+}
+
+func iPromote(deploymentName, toEnvironment string) error {
+	return escape.Run([]string{"run", "promote", "-f", "--deployment", deploymentName, "--to", toEnvironment})
+}
+
+func iPromoteWithDifferentName(deploymentName, toDeploymentName, toEnvironment string) error {
+	return escape.Run([]string{"run", "promote", "-f", "--deployment", deploymentName, "--to", toEnvironment, "--to-deployment", toDeploymentName})
+}
+
+func deploymentNameIsPresentInEnvironmentState(deploymentName, environment string) error {
+	env, err := state.NewLocalStateProvider("escape_state.json").Load("prj", "dev")
+	if err != nil {
+		return err
+	}
+
+	deployment := env.Project.GetEnvironmentStateOrMakeNew(environment).Deployments[deploymentName]
+	if deployment == nil {
+		return fmt.Errorf("%s not found in %s environment state", deploymentName, environment)
+	}
+
+	return nil
 }
