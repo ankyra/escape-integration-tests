@@ -1,7 +1,12 @@
 Feature: escape run promote
-    As a Infrastructure engineer
-    In order to deploy my changes to a different environment
-    I need to be able to promote a deployment
+
+    Scenario: No extra args
+      When I run "escape run promote unknown"
+      Then I should see "Error: Unknown command 'unknown" in the output
+
+    Scenario: Prints help with flag
+      When I run "escape promote --help"
+      Then I should see "Usage" in the output
 
     Scenario: Promoting a release to a new environment
       Given a new Escape plan called "my-app"

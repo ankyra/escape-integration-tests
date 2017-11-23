@@ -61,6 +61,12 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`I promote "([^"]*)" to "([^"]*)"`, iPromote)
 	s.Step(`I promote "([^"]*)" as "([^"]*)" to "([^"]*)"`, iPromoteWithDifferentName)
 	s.Step(`^"([^"]*)" is present in "([^"]*)" environment state$`, deploymentNameIsPresentInEnvironmentState)
+
+	s.Step(`I run "([^"]*)"`, runEscapeCmd)
+}
+
+func runEscapeCmd(args string) error {
+	return escape.Run(strings.Split(args, " ")[1:])
 }
 
 func aNewEscapePlanCalled(name string) error {
