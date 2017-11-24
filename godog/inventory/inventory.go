@@ -7,12 +7,14 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/ankyra/escape-core/util"
+	"github.com/ankyra/escape/util"
 )
 
 var ServerProcess *exec.Cmd
 
-func Start(inventoryPath string) {
+func Start(inventoryPath string) error {
+	fmt.Println("Inventory starting")
+
 	go func() {
 		os.RemoveAll("test.db")
 		os.RemoveAll("escape_state.json")
@@ -40,13 +42,21 @@ func Start(inventoryPath string) {
 	}()
 
 	status := 0
-	for status != 200 {
+	checkStarted := time.Now()
+	for status != 200 && time.Now().Before(checkStarted.Add(time.Second*10)) {
 		time.Sleep(time.Second / 2)
 		resp, err := http.Get("http://localhost:7777/health")
 		if err == nil {
 			status = resp.StatusCode
 		}
 	}
+
+	if status == 0 {
+		return fmt.Errorf("Inventory did not start")
+	}
+
+	fmt.Println("Inventory started")
+	return nil
 }
 
 func Wipe() error {

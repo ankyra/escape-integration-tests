@@ -20,7 +20,10 @@ func FeatureContext(s *godog.Suite) {
 	steps.AddSteps(s)
 
 	s.BeforeSuite(func() {
-		inventory.Start(InventoryPath)
+		err := inventory.Start(InventoryPath)
+		if err != nil {
+			panic(err)
+		}
 	})
 
 	s.AfterSuite(func() {
