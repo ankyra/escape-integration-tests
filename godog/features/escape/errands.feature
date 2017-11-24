@@ -104,7 +104,14 @@ Feature: escape errands
         When I run "escape errands run test-errand --deployment _/errand-release --local"
         Then I should see "hello" in the output
 
-     Scenario: Errors when local errand is not found
+      Scenario: Runs local errand without deployment flag
+        Given a new Escape plan called "errand-release"
+          And errand "test-errand" with script "test.sh"
+          And I deploy
+        When I run "escape errands run test-errand --local"
+        Then I should see "hello" in the output
+
+      Scenario: Errors when local errand is not found
         Given a new Escape plan called "errand-release"
           And I release the application   
           And I deploy "_/errand-release-v0.0.0"
@@ -123,13 +130,6 @@ Feature: escape errands
         When I run "escape errands run test-errand --deployment _/errand-release --local" which fails
         Then I should see "Error: '_/errand-release' has not been deployed in the environment 'dev'." in the output
           And I should see "Use 'escape run deploy' to deploy it." in the output
-
-      Scenario: Errors without deployment
-        Given a new Escape plan called "errand-release"
-          And I release the application
-          And I deploy "_/errand-release-v0.0.0"
-        When I run "escape errands run test-errand --local" which fails
-        Then I should see "Error: Missing deployment name" in the output
 
       Scenario: Errors with no plan locally
         When I run "escape errands run test-errand --deployment _/errand-release --local" which fails
