@@ -21,6 +21,12 @@
 			"revisionTime": "2017-07-02T16:22:23Z"
 		},
 		{
+			"checksumSHA1": "0IdYYMqLk+29hAe1Hp6vvWS/J/s=",
+			"path": "github.com/ankyra/escape/model/config",
+			"revision": "fd1886968ee22c81a32c3dd3d0cfd1391e625e6d",
+			"revisionTime": "2017-11-14T18:33:32Z"
+		},
+		{
 			"checksumSHA1": "yiJqzNVMT4A7LyLbIZA/JHrbFbI=",
 			"path": "github.com/ankyra/escape/model/escape_plan",
 			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
