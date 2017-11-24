@@ -1,7 +1,7 @@
 Feature: escape state
 
     Scenario: No extra args
-      When I run "escape state unknown"
+      When I run "escape state unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help
@@ -21,7 +21,7 @@ Feature: escape state
   Scenario: escape state list-deployments
 
       Scenario: No extra args
-        When I run "escape state list-deployments unknown"
+        When I run "escape state list-deployments unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag
@@ -31,7 +31,7 @@ Feature: escape state
   Scenario: escape state show-deployment
 
       Scenario: No extra args
-        When I run "escape state show-deployment unknown"
+        When I run "escape state show-deployment unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag
@@ -41,7 +41,7 @@ Feature: escape state
   Scenario: escape state show-providers
 
       Scenario: No extra args
-        When I run "escape state show-providers unknown"
+        When I run "escape state show-providers unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag

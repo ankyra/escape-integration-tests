@@ -1,7 +1,7 @@
 Feature: escape plan
 
     Scenario: No extra args
-      When I run "escape plan unknown"
+      When I run "escape plan unknown" which fails
       Then I should see "Error: Unknown command 'unknown'" in the output
 
     Scenario: Prints help
@@ -15,7 +15,7 @@ Feature: escape plan
     Scenario: escape plan diff
 
       Scenario: No extra args
-        When I run "escape plan diff unknown"
+        When I run "escape plan diff unknown" which fails
         Then I should see "Error: Unknown command 'unknown'" in the output
 
       Scenario: Prints help with flag
@@ -25,7 +25,7 @@ Feature: escape plan
     Scenario: escape plan fmt
 
       Scenario: No extra args
-        When I run "escape plan fmt unknown"
+        When I run "escape plan fmt unknown" which fails
         Then I should see "Error: Unknown command 'unknown'" in the output
 
       Scenario: Prints help with flag
@@ -40,7 +40,7 @@ Feature: escape plan
         Then I should see "Usage" in the output
 
       Scenario: Prints error if no escape plan
-        When I run "escape plan get"
+        When I run "escape plan get" which fails
         Then I should see "Error: Escape plan 'escape.yml' was not found. Use 'escape plan init' to create it" in the output
 
       Scenario: Prints help with flag
@@ -48,14 +48,14 @@ Feature: escape plan
         Then I should see "Usage" in the output
 
       Scenario: Get unknown plan field name error
-      Given a new Escape plan called "my-app"
-        When I run "escape plan get unknown"
+        Given a new Escape plan called "my-app"
+        When I run "escape plan get unknown" which fails
         Then I should see "Error: This field is currently unsupported by this command." in the output
 
     Scenario: escape plan init
 
       Scenario: No extra args
-        When I run "escape plan init unknown"
+        When I run "escape plan init unknown" which fails
         Then I should see "Error: Unknown command 'unknown'" in the output
 
       Scenario: Prints help with flag
@@ -65,7 +65,7 @@ Feature: escape plan
     Scenario: escape plan minify
 
       Scenario: No extra args
-        When I run "escape plan minify unknown"
+        When I run "escape plan minify unknown" which fails
         Then I should see "Error: Unknown command 'unknown'" in the output
 
       Scenario: Prints help with flag
@@ -76,7 +76,7 @@ Feature: escape plan
     Scenario: escape plan preview
 
       Scenario: No extra args
-        When I run "escape plan preview unknown"
+        When I run "escape plan preview unknown" which fails
         Then I should see "Error: Unknown command 'unknown'" in the output
 
       Scenario: Prints help with flag
@@ -98,5 +98,5 @@ Feature: escape plan
 
     Scenario: Get unknownEscape plan field
       Given a new Escape plan called "my-release"
-      When I get the Escape plan field name "unknown field"
+      When I run "escape plan get unknown field" which fails
       Then I should see "Error: This field is currently unsupported by this command." in the output

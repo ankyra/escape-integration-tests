@@ -64,6 +64,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`I promote "([^"]*)" as "([^"]*)" to "([^"]*)"`, iPromoteWithDifferentName)
 	s.Step(`^"([^"]*)" is present in "([^"]*)" environment state$`, deploymentNameIsPresentInEnvironmentState)
 
+	s.Step(`I run "([^"]*)" which fails`, runAndFailEscapeCmd)
 	s.Step(`I run "([^"]*)"`, runEscapeCmd)
 	s.Step(`I have the profile "([^"]*)" in my config`, addProfileToConfig)
 	s.Step(`I set "([^"]*)" to be the active profile`, setActiveProfile)
@@ -76,6 +77,11 @@ func AddSteps(s *godog.Suite) {
 
 func runEscapeCmd(args string) error {
 	return escape.Run(strings.Split(args, " ")[1:])
+}
+
+func runAndFailEscapeCmd(args string) error {
+	escape.RunAndFail(strings.Split(args, " ")[1:])
+	return nil
 }
 
 func addProfileToConfig(profileName string) error {

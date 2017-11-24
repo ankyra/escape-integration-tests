@@ -1,7 +1,7 @@
 Feature: escape run
 
     Scenario: No extra args
-      When I run "escape run unknown"
+      When I run "escape run unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help

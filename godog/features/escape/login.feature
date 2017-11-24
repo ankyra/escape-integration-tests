@@ -1,7 +1,7 @@
 Feature: escape login
 
     Scenario: No extra args
-      When I run "escape login unknown"
+      When I run "escape login unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help
@@ -24,6 +24,6 @@ Feature: escape login
         And "alt" is a profile in my config
         And "alt" is the active profile in my config
 
-    Scenario: Errors when given an invalid URL
-      When I run "escape login --url http://l/o/c/a/l/host:7777"
+    Scenario: Errors when given an invalid URL which fails
+      When I run "escape login --url http://l/o/c/a/l/host:7777" which fails
       Then I should see "Error: Couldn't get auth methods from server 'http://l/o/c/a/l/host:7777'" in the output

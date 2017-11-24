@@ -1,11 +1,11 @@
 Feature: escape run promote
 
     Scenario: No extra args
-      When I run "escape run promote unknown"
+      When I run "escape run promote unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help with flag
-      When I run "escape promote --help"
+      When I run "escape run promote --help"
       Then I should see "Usage" in the output
 
     Scenario: Promoting a release to a new environment
@@ -33,15 +33,15 @@ Feature: escape run promote
         And "_/deployment" is present in "new-env" environment state
 
     Scenario: No deployment name
-      When I promote "" to "new-env"
+      When I run "escape run promote -f --to new-env" which fails
       Then I should see "Error: Missing deployment name" in the output
-
+      
     Scenario: Unknown deployment name
-      When I promote "_/unknown" to "new-env"
+      When I run "escape run promote -f --deployment _/unknown --to new-env" which fails
       Then I should see "Error: Deployment _/unknown was not found in the environment dev." in the output
 
     Scenario: Deployment not deployed
       Given a new Escape plan called "not-deployed"
         And I build the application
-      When I promote "_/not-deployed" to "new-env"
+      When I run "escape run promote -f --deployment _/not-deployed --to new-env" which fails
       Then I should see "Error: Deployment _/not-deployed has not been deployed in the environment dev." in the output

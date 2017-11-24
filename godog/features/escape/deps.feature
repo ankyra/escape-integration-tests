@@ -1,7 +1,7 @@
 Feature: escape deps
 
     Scenario: No extra args
-      When I run "escape deps unknown"
+      When I run "escape deps unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help
@@ -15,7 +15,7 @@ Feature: escape deps
   Scenario: escape deps fetch
 
        Scenario: No extra args
-        When I run "escape deps fetch unknown"
+        When I run "escape deps fetch unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag

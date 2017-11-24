@@ -1,7 +1,7 @@
 Feature: escape inventory
 
     Scenario: No extra args
-      When I run "escape inventory unknown"
+      When I run "escape inventory unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help
@@ -15,7 +15,7 @@ Feature: escape inventory
     Scenario: escape inventory query
 
       Scenario: No extra args
-        When I run "escape inventory query unknown"
+        When I run "escape inventory query unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag

@@ -1,7 +1,7 @@
 Feature: escape config
 
     Scenario: No extra args
-      When I run "escape config unknown"
+      When I run "escape config unknown" which fails
       Then I should see "Error: Unknown command 'unknown" in the output
 
     Scenario: Prints help
@@ -15,7 +15,7 @@ Feature: escape config
   Scenario: escape config active-profile
 
        Scenario: No extra args
-        When I run "escape config active-profile unknown"
+        When I run "escape config active-profile unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag
@@ -50,7 +50,7 @@ Feature: escape config
   Scenario: escape config list-profiles
 
        Scenario: No extra args
-        When I run "escape config list-profiles unknown"
+        When I run "escape config list-profiles unknown" which fails
         Then I should see "Error: Unknown command 'unknown" in the output
 
       Scenario: Prints help with flag
@@ -89,7 +89,7 @@ Feature: escape config
         Then I should see "api_server: http://localhost:7777" in the output
 
       Scenario: Errors on unknown config config
-        When I run "escape config profile unknown"
+        When I run "escape config profile unknown" which fails
         Then I should see "Error: 'unknown' is not a valid field name" in the output
 
   Scenario: escape config set-profile
@@ -109,6 +109,6 @@ Feature: escape config
           And "alt" is the active profile in my config
 
       Scenario: Errors if the profile does not exist
-        When I run "escape config set-profile alt"
+        When I run "escape config set-profile alt" which fails
         Then I should see "Error: Referenced profile 'alt' was not found in the Escape configuration file." in the output
           And "default" is the active profile in my config
