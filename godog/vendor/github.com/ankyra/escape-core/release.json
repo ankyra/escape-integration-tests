@@ -1,29 +1,38 @@
 {
    "api_version": 8,
-   "built_with_core_version": "0.8.0",
-   "built_with_escape_version": "0.19.0",
+   "built_with_core_version": "0.8.25",
+   "built_with_escape_version": "0.19.5",
    "description": "Core library containing datastructures for working with Release Metadata, State and the Escape Scripting Language.\nPlease see https://escape.ankyra.io for the full documentation.",
    "files": {
       "LICENSE": "2a944942e1496af1886903d274dedb13",
-      "README.md": "ad73b9029c0b11da5ed490238805c502",
-      "build.sh": "b6d3c274085e09f3c6e19160ca767301",
-      "consumer.go": "c81742d72604e3512d69017eb07cc7ec",
+      "README.md": "157ef9ed335beff9ccd5d85185921004",
+      "build.sh": "f90bc77595918535d7e064b202aa6997",
+      "consumer.go": "ff97d96509d1606f9c90c5504e04a0d7",
       "consumer_test.go": "3ff946e134efa5165c73db7476ffbbb4",
-      "core.go": "d436cb0d6226a744ec2202fc7a2faced",
+      "core.go": "858bc8d0425ee97a39b95e798ad175f6",
       "core.go.tpl": "4099a7b2c6c7798799ea2819f8cf5c27",
       "dependency.go": "c2fad1fb08026574389ca4ed44be50e1",
-      "dependency_config.go": "9ab20039859c0b7f6bd2e90e2e1a06a6",
+      "dependency_config.go": "27a1903a2264ebf8e4c6dbf8a5d55ea2",
       "dependency_config_test.go": "86bdbfe3d8f37329845277e69ecee32c",
       "dependency_test.go": "141917507d043eed403cfc1493cf32fd",
       "diff.go": "d26a23ae2e9a3fe2d3e98358b9ae4cef",
       "diff_test.go": "b8ba4f49d00eec3b6668a02f96115825",
-      "docs/generate_stdlib_docs.go": "15e02f0835b07edb0ecd7e60d6d3f040",
+      "docs/generate_pages.go": "6f9a2bea4ba36801d27c29dace654dd6",
+      "docs/generate_stdlib_docs.go": "672a40c6b105e634e880d5447d5b30f0",
+      "docs/generated/dependencies.md": "7aa3550bc98dd9aa88ff71758bbfd2b9",
+      "docs/generated/downloads.md": "d8370846d167364fa803755a591a0ff2",
+      "docs/generated/errands.md": "ff6e0933d26984893c8a453b16836ebb",
+      "docs/generated/extensions.md": "4b3be96b0c0badf8c75289f542be748f",
+      "docs/generated/input-and-output-variables.md": "997151dcd0d74098e999bef2cf7077e6",
+      "docs/generated/providers-and-consumers.md": "e5301473646347e0c3396c518a6b3191",
+      "docs/generated/stdlib.md": "bd78963edef6db899884bfce31e066c7",
+      "docs/generated/templates.md": "33f69e7f3c0c3080dcfad3fcb8bc5f36",
       "docs/scripting_language.md": "79ffa91ba9dad432b9c3810b474036d8",
-      "docs/stdlib.md": "339408b92f1beb216826054e74d6a44b",
-      "download_config.go": "18861e9a54cd25755edb582ce260fdb3",
-      "errand.go": "22d56084cdd5088790a285196cf909b6",
+      "download_config.go": "02e70a96e0c1c18f87c4c5fb400cf63e",
+      "errand.go": "18d5d5685674b84023b3b2618b1a428b",
       "errand_test.go": "2024729f8621ada8cd3699ec18d5d934",
-      "metadata.go": "5ed0d016e1fef97e5bbba22efefc9c9b",
+      "extension_config.go": "6342401265b12c65b34ae884ed5c6f39",
+      "metadata.go": "093f9f477e25a8756c36f05863d592df",
       "metadata_test.go": "d10f1eaf62e994e8d931a7449b625c16",
       "parsers/dependency.go": "10f44131f05126e0e1677a56ecdc92b1",
       "parsers/dependency_test.go": "ce9d8416e7c35701034ff42f00768e66",
@@ -44,8 +53,6 @@
       "script/parser_test.go": "df394ebf74087d2f7ac45b18396261cf",
       "script/script.go": "dab208818ad187ca5b639f126d3df95e",
       "script/type.go": "c4dbdef86741d5936047b7f98c8e57db",
-      "state/.deployment.go.swp": "f2fa23b5e877a355053c657a5d1f5009",
-      "state/.deployment_test.go.swp": "3fff2b3eb20dd0c6a88c6713a4434b67",
       "state/dag.go": "33fb72ffea5d64fcfed307a2560d52f0",
       "state/dag_test.go": "585e69f67cba945c4f9a7c03b150397b",
       "state/deployment.go": "0e530457c73e7babe7ae0bdc1c94bb1e",
@@ -61,18 +68,19 @@
       "state/status_test.go": "5b66f665d38e572b9da2a4a28519d5d1",
       "state/testdata/project.json": "6a60c9206d05ae6ead95fc07efcbd174",
       "state/testdata/project_script.json": "11012c64310f65b862d917df6007f1d4",
-      "templates/templates.go": "d6437140272fd021068af2e17e209165",
+      "templates/templates.go": "15d37f85e9ab7d5296c3929c98fd68c9",
       "templates/templates_test.go": "fae5a964597f811a079dd5eb35574404",
       "templates/testdata/helloworld.mustache": "73106d5bfa7b0736ebcf86b8ba7d0820",
-      "test.sh": "e507ac0c3d2aa7d897f5360a80f13079",
+      "test.sh": "d958d2697b1268c1975c2cd12bc66bf0",
       "util/errors.go": "bfe0c2898e5502afae76b9b8bca85e63",
       "util/log_consumer.go": "0c48f3364ce07040b0c0221a715a9554",
       "util/log_entry.go": "90c518ce0d4eee951880d06170ef03c9",
       "util/logger.go": "422eab31c3062ace4c83d4a993a420e0",
       "util/path.go": "b256d866ccb2c4a155282f1e56c65105",
       "util/process.go": "cef1e12dfcdd4a59c464239e70209275",
+      "util/random.go": "aaa8b9be6f38129e3d38fdc7245479c4",
       "util/value.go": "7bc9d4f0435b94d3cfa646e04dafbcf9",
-      "variables/variable.go": "ec09b6495a2cf90ae1bc399073b0d614",
+      "variables/variable.go": "9884ced7c3851e1dd01b7c0c1b327358",
       "variables/variable_test.go": "c771e4af61350db4ca30aa53a262681b",
       "variables/variable_types/bool.go": "86a7d62e5c0fa851ed6998df3b3c3d4c",
       "variables/variable_types/bool_test.go": "313fb37e9f9461b132bf7141d7cba66d",
@@ -133,13 +141,13 @@
    "name": "escape-core",
    "repository": "git@github.com:ankyra/escape-core.git",
    "branch": "master",
-   "git_revision": "3ae6770558f7698c39859dc131078c2bcc36c47c",
-   "revision_message": "Add GetRootDeploymentStage to Deployment",
+   "git_revision": "4c4f03312bc691d391a4e7a07c8b712506f53b7a",
+   "revision_message": "Restore scripting language doc",
    "revision_author": "Bart Spaans \u003cbart.spaans@gmail.com\u003e",
    "metadata": {
       "release_metadata_api_version": "8"
    },
-   "version": "0.8.22",
+   "version": "0.8.7",
    "consumes": [],
    "downloads": null,
    "depends": [],
@@ -153,25 +161,13 @@
       "build": {
          "script": "build.sh"
       },
-      "deploy": {
-         "script": ""
-      },
       "destroy": {
-         "script": ""
-      },
-      "post_deploy": {
          "script": ""
       },
       "post_destroy": {
          "script": ""
       },
-      "pre_deploy": {
-         "script": ""
-      },
       "pre_destroy": {
-         "script": ""
-      },
-      "smoke": {
          "script": ""
       },
       "test": {

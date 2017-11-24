@@ -21,52 +21,133 @@
 			"revisionTime": "2017-07-02T16:22:23Z"
 		},
 		{
-			"checksumSHA1": "0IdYYMqLk+29hAe1Hp6vvWS/J/s=",
-			"path": "github.com/ankyra/escape/model/config",
-			"revision": "fd1886968ee22c81a32c3dd3d0cfd1391e625e6d",
-			"revisionTime": "2017-11-14T18:33:32Z"
+			"checksumSHA1": "8Mk4FfXhrcM433lr/4iw7txqbzI=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core",
+			"path": "github.com/ankyra/escape-core",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
 		},
 		{
-			"checksumSHA1": "yiJqzNVMT4A7LyLbIZA/JHrbFbI=",
+			"checksumSHA1": "Vd2XuyLc1xjkOHbn8XvuPg5YPjY=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/docs",
+			"path": "github.com/ankyra/escape-core/docs",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "oVoOO3iAvpvgGQPPHqhGMkJ6nqo=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/parsers",
+			"path": "github.com/ankyra/escape-core/parsers",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "qymYpqxq2qiGowoeE5+JzEkdl/s=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/script",
+			"path": "github.com/ankyra/escape-core/script",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "6UPtZ/1ZcB356iLvTPK9K2SuIko=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/state",
+			"path": "github.com/ankyra/escape-core/state",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "3lhAlSogWQowMXulPhKbjZUV1Uc=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/templates",
+			"path": "github.com/ankyra/escape-core/templates",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "IFDsFWU/T0Yhtj1tpvNH8tpEAHM=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/util",
+			"path": "github.com/ankyra/escape-core/util",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "ZkgbZ4T4sZ6X12TI3AN9NBHbOkk=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/variables",
+			"path": "github.com/ankyra/escape-core/variables",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "KgNH6kHm7IlHbMG26vKyhIXSbUw=",
+			"origin": "github.com/ankyra/escape-integration-tests/godog/vendor/github.com/ankyra/escape-core/variables/variable_types",
+			"path": "github.com/ankyra/escape-core/variables/variable_types",
+			"revision": "4483e653d1aba7be0ca4e0dea8b8497000e57f90",
+			"revisionTime": "2017-11-20T16:00:09Z"
+		},
+		{
+			"checksumSHA1": "e9QGcv0u30P00mObDX/A+Islb70=",
+			"path": "github.com/ankyra/escape/model/config",
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
+		},
+		{
+			"checksumSHA1": "NbTJ4hgId6ngyQKdg84mSeuYjio=",
 			"path": "github.com/ankyra/escape/model/escape_plan",
-			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
-			"revisionTime": "2017-11-02T18:12:17Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
 			"checksumSHA1": "6yP+x0EM4Cwv/d2jrZs2XickMDs=",
 			"path": "github.com/ankyra/escape/model/inventory",
-			"revision": "fd1886968ee22c81a32c3dd3d0cfd1391e625e6d",
-			"revisionTime": "2017-11-14T18:33:32Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
-			"checksumSHA1": "1H9wEVFTFyarmuxupb1HfoB/LSQ=",
+			"checksumSHA1": "cExjItRmIdhgASED0oktTC6vGIk=",
+			"path": "github.com/ankyra/escape/model/inventory/local",
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
+		},
+		{
+			"checksumSHA1": "VpiH9WJjkhgj/zwR1YlNkd1pDNM=",
+			"path": "github.com/ankyra/escape/model/inventory/remote",
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
+		},
+		{
+			"checksumSHA1": "J/GySYB6+JlNL+KXrysuGeG1MZY=",
+			"path": "github.com/ankyra/escape/model/inventory/types",
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
+		},
+		{
+			"checksumSHA1": "tnHWpqrTrkkli/Qvjr8Y3gzpbOY=",
 			"path": "github.com/ankyra/escape/model/remote",
-			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
-			"revisionTime": "2017-11-02T18:12:17Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
 			"checksumSHA1": "VeozQ+57MYmgUgpSVKdzQBcCGQ0=",
 			"path": "github.com/ankyra/escape/model/state",
-			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
-			"revisionTime": "2017-11-02T18:12:17Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
 			"checksumSHA1": "8dYRwP9swTWRWoclA+FpuyIlTMs=",
 			"path": "github.com/ankyra/escape/model/state/local",
-			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
-			"revisionTime": "2017-11-02T18:12:17Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
 			"checksumSHA1": "85Dp4IHss9KlxN/KXAm5KbD8990=",
 			"path": "github.com/ankyra/escape/model/state/remote",
-			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
-			"revisionTime": "2017-11-02T18:12:17Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
-			"checksumSHA1": "NWSlmmx0ozG8pKEMEKzztchYbMY=",
+			"checksumSHA1": "+I9/MpWYN9+ijgGIrAymsWJ50Es=",
 			"path": "github.com/ankyra/escape/util",
-			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
-			"revisionTime": "2017-11-02T18:12:17Z"
+			"revision": "b34c4c0be1fb3a5ecd7819dd6fa3f2a402cf9d31",
+			"revisionTime": "2017-11-23T12:43:12Z"
 		},
 		{
 			"checksumSHA1": "NNElWY1DDnkaMFqBDKoBL+UwUUQ=",
@@ -77,20 +158,20 @@
 		{
 			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
 			"path": "golang.org/x/text/transform",
-			"revision": "836efe42bb4aa16aaa17b9c155d8813d336ed720",
-			"revisionTime": "2017-07-09T00:38:22Z"
+			"revision": "88f656faf3f37f690df1a32515b479415e1a6769",
+			"revisionTime": "2017-10-26T07:52:28Z"
 		},
 		{
-			"checksumSHA1": "Anof4bt0AU+Sa3R8Rq0KBnlpbaQ=",
+			"checksumSHA1": "km/8bLtOpIP7sua4MnEmiSDYTAE=",
 			"path": "golang.org/x/text/unicode/norm",
-			"revision": "836efe42bb4aa16aaa17b9c155d8813d336ed720",
-			"revisionTime": "2017-07-09T00:38:22Z"
+			"revision": "88f656faf3f37f690df1a32515b479415e1a6769",
+			"revisionTime": "2017-10-26T07:52:28Z"
 		},
 		{
-			"checksumSHA1": "KHOUE9QA14iPCFNIVs5X72MYdkA=",
+			"checksumSHA1": "RDJpJQwkF012L6m/2BJizyOksNw=",
 			"path": "gopkg.in/yaml.v2",
-			"revision": "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af",
-			"revisionTime": "2017-07-13T20:15:20Z"
+			"revision": "eb3733d160e74a9c7e442f435eb3bea458e1d19f",
+			"revisionTime": "2017-08-12T16:00:11Z"
 		}
 	],
 	"rootPath": "github.com/ankyra/escape-integration-tests/godog"

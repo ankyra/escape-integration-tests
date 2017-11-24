@@ -24,6 +24,20 @@ const (
 	ERROR   = iota
 )
 
+func stringToLogLevel(logLevel string) LogLevel {
+	if logLevel == "debug" {
+		return DEBUG
+	} else if logLevel == "warn" {
+		return WARN
+	} else if logLevel == "success" {
+		return SUCCESS
+	} else if logLevel == "error" {
+		return ERROR
+	}
+
+	return INFO
+}
+
 const EscapeLogo = `
   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   @                                 @
@@ -45,7 +59,7 @@ const EscapeLogo = `
 
 var logMessages = map[string]map[string]string{
 	"package.finished": map[string]string{
-		"msg":   "Packaged {{ .release }}",
+		"msg":   "Packaged {{ .release }} at {{ .path }}",
 		"level": "success",
 	},
 	"package.start": map[string]string{
@@ -242,7 +256,7 @@ var logMessages = map[string]map[string]string{
 		"level": "info",
 	},
 	"deploy.finished": map[string]string{
-		"msg":   "Successfully deployed.",
+		"msg":   "Successfully deployed {{ .release }} with deployment name {{ .deployment }} in the {{ .environment }} environment.",
 		"level": "success",
 	},
 	"deploy.start": map[string]string{
@@ -328,7 +342,7 @@ var logMessages = map[string]map[string]string{
 		"collapse": "false",
 	},
 	"fetch.finished": map[string]string{
-		"msg":   "Fetched dependency {{ .dependency }}",
+		"msg":   "Dependencies have been fetched.",
 		"level": "success",
 	},
 	"fetch.start": map[string]string{
@@ -351,6 +365,21 @@ var logMessages = map[string]map[string]string{
 		"msg":   "Written {{ .path }}.",
 		"level": "success",
 	},
+	"promote.state_info": map[string]string{
+		"msg":      "Deployment {{ .deployment }} in environment {{ .environment }} has {{ .releaseId }}.",
+		"level":    "info",
+		"collapse": "false",
+	},
+	"promote.state_info_missing": map[string]string{
+		"msg":      "Deployment {{ .deployment }} in environment {{ .environment }} is not present.",
+		"level":    "info",
+		"collapse": "false",
+	},
+	"promote.promoting": map[string]string{
+		"msg":      "Promoting {{ .releaseId }} from {{ .fromEnvironment }} to {{ .toEnvironment }}.",
+		"level":    "info",
+		"collapse": "false",
+	},
 	"push.finished": map[string]string{
 		"msg":   "Push successful.",
 		"level": "success",
@@ -370,6 +399,10 @@ var logMessages = map[string]map[string]string{
 	"release.start": map[string]string{
 		"msg":   "Releasing {{.release}}",
 		"level": "info",
+	},
+	"release.skip_existing": map[string]string{
+		"msg":   "Skipping release, because version v{{.version}} already exists in the Inventory and --skip-if-exists is set.",
+		"level": "success",
 	},
 	"run.finished": map[string]string{
 		"msg":   "Run succeeded.",

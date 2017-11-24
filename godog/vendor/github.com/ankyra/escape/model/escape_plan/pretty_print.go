@@ -26,9 +26,17 @@ import (
 
 type prettyPrinter struct {
 	IncludeEmpty bool
-	IncludeDocs  bool
 	Spacing      int
 }
+
+var Fields = []string{"name", "version", "description", "logo", "extends", "depends",
+	"consumes", "build_consumes", "deploy_consumes",
+	"provides", "inputs", "build_inputs", "deploy_inputs",
+	"outputs", "metadata", "includes", "errands", "downloads",
+	"templates", "build_templates", "deploy_templates",
+	"pre_build", "build", "post_build", "test",
+	"pre_deploy", "deploy", "post_deploy", "smoke",
+	"pre_destroy", "destroy", "post_destroy"}
 
 var templateMap = map[string]string{
 	"name":             keyValTpl,
@@ -75,13 +83,6 @@ func includeEmpty(b bool) printConf {
 	}
 }
 
-func includeDocs(b bool) printConf {
-	return func(p *prettyPrinter) *prettyPrinter {
-		p.IncludeDocs = b
-		return p
-	}
-}
-
 func spacing(i int) printConf {
 	return func(p *prettyPrinter) *prettyPrinter {
 		p.Spacing = i
@@ -91,7 +92,6 @@ func spacing(i int) printConf {
 
 func NewPrettyPrinter(cfg ...printConf) *prettyPrinter {
 	pp := &prettyPrinter{
-		IncludeDocs:  true,
 		IncludeEmpty: true,
 		Spacing:      2,
 	}
@@ -104,15 +104,7 @@ func NewPrettyPrinter(cfg ...printConf) *prettyPrinter {
 func (e *prettyPrinter) Print(plan *EscapePlan) []byte {
 	yamlMap := plan.ToDict()
 	writer := bytes.NewBuffer([]byte{})
-	ordering := []string{
-		"name", "version", "description", "logo", "extends", "depends",
-		"consumes", "build_consumes", "deploy_consumes",
-		"provides", "inputs", "build_inputs", "deploy_inputs",
-		"outputs", "metadata", "includes", "errands", "downloads",
-		"templates", "build_templates", "deploy_templates", "path",
-		"pre_build", "build", "post_build", "test",
-		"pre_deploy", "deploy", "post_deploy", "smoke",
-		"pre_destroy", "destroy", "post_destroy"}
+	ordering := Fields
 	for _, key := range ordering {
 		val, ok := yamlMap[key]
 		if !ok {
@@ -154,13 +146,6 @@ func (e *prettyPrinter) prettyPrintValue(key string, val interface{}) []byte {
 		"value": strings.TrimSpace(string(value)),
 	}
 	doc := []byte("")
-	if e.IncludeDocs {
-		docS := string(GetDoc(key))
-		if docS != "" {
-			docS += "\n"
-		}
-		doc = []byte(docS)
-	}
 	writer := bytes.NewBuffer(doc)
 	if err := tpl.Execute(writer, valueMap); err != nil {
 		panic(err)
