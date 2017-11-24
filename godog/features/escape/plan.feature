@@ -62,6 +62,38 @@ Feature: escape plan
         When I run "escape plan get --help"
         Then I should see "Usage" in the output
 
+      Scenario: Creates escape plan
+        When I run "escape plan init --name release"
+        Then I should see "" in the output
+          And an Escape plan should exist
+          And the Escape plan should have the name "release"
+          And the Escape plan should have the version "0.0.@"
+          And the Escape plan should have the "README.md" file included
+
+      Scenario: Creates escape plan supports project and package name
+        When I run "escape plan init --name my/release"
+        Then I should see "" in the output
+          And an Escape plan should exist
+          And the Escape plan should have the name "my/release"
+                    
+      Scenario: Errors if plan exists
+        Given a new Escape plan called "release"
+          When I run "escape plan init --name my/release" which fails
+          Then I should see "Error: 'escape.yml' already exists." in the output
+            And I should see "Use --force / -f to overwrite." in the output
+
+      Scenario: Overwrites escape plan with --force
+        Given a new Escape plan called "release"
+        When I run "escape plan init --name my/release --force"
+        Then I should see "" in the output
+          And an Escape plan should exist
+          And the Escape plan should have the name "my/release"
+
+      Scenario: Creates escape plan at the --output
+        When I run "escape plan init --name release --output escape2.yml"
+        Then I should see "" in the output
+          And an Escape plan should exist at "escape2.yml"
+
     Scenario: escape plan minify
 
       Scenario: No extra args
