@@ -53,6 +53,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^template "([^"]*)" containing "([^"]*)"$`, templateContaining)
 	s.Step(`^I should have a file "([^"]*)" with contents "([^"]*)"$`, iShouldHaveAFileWithContents)
 	s.Step(`^errand "([^"]*)" with script "([^"]*)"$`, errandWithScript)
+	s.Step(`^errand "([^"]*)" with script "([^"]*)" with description "([^"]*)"$`, errandWithScriptAndDescription)
 	s.Step(`^I list the errands in the deployment "([^"]*)"$`, iListTheErrandsInTheDeployment)
 	s.Step(`^I should see "([^"]*)" in the output$`, iShouldSeeInTheOutput)
 	s.Step(`^I list the local errands$`, iListTheLocalErrands)
@@ -167,6 +168,10 @@ func outputVariableWithDefault(variableId, defaultValue string) error {
 }
 
 func errandWithScript(errand, script string) error {
+	return errandWithScriptAndDescription(errand, script, "")
+}
+
+func errandWithScriptAndDescription(errand, script, description string) error {
 	plan := escape_plan.NewEscapePlan()
 	err := plan.LoadConfig("escape.yml")
 	if err != nil {
@@ -175,6 +180,11 @@ func errandWithScript(errand, script string) error {
 	plan.Errands[errand] = map[string]interface{}{
 		"script": script,
 	}
+
+	if description != "" {
+		plan.Errands[errand].(map[string]interface{})["description"] = description
+	}
+
 	if err := ioutil.WriteFile(script, []byte("#!/bin/bash -e\necho hello"), 0644); err != nil {
 		return err
 	}

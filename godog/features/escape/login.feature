@@ -17,6 +17,13 @@ Feature: escape login
       Then I should see "Authentication not required" in the output
         And I should see "Successfully logged in to http://localhost:7777" in the output
 
+    Scenario: Logs in and creates new profile using --target-profile
+      When I run "escape login --url http://localhost:7777 --target-profile alt"
+      Then I should see "Authentication not required" in the output
+        And I should see "Successfully logged in to http://localhost:7777" in the output
+        And "alt" is a profile in my config
+        And "alt" is the active profile in my config
+
     Scenario: Errors when given an invalid URL
       When I run "escape login --url http://l/o/c/a/l/host:7777"
       Then I should see "Error: Couldn't get auth methods from server 'http://l/o/c/a/l/host:7777'" in the output
