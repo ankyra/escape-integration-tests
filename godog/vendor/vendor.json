@@ -33,6 +33,12 @@
 			"revisionTime": "2017-11-02T18:12:17Z"
 		},
 		{
+			"checksumSHA1": "6yP+x0EM4Cwv/d2jrZs2XickMDs=",
+			"path": "github.com/ankyra/escape/model/inventory",
+			"revision": "fd1886968ee22c81a32c3dd3d0cfd1391e625e6d",
+			"revisionTime": "2017-11-14T18:33:32Z"
+		},
+		{
 			"checksumSHA1": "1H9wEVFTFyarmuxupb1HfoB/LSQ=",
 			"path": "github.com/ankyra/escape/model/remote",
 			"revision": "0a9c4fd42e7051d0d89d60c0551a149c415fac48",
