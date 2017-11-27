@@ -1,3 +1,4 @@
+@wip
 Feature: escape run promote
 
     Scenario: No extra args
@@ -34,7 +35,7 @@ Feature: escape run promote
 
     Scenario: No deployment name
       When I run "escape run promote -f --to new-env" which fails
-      Then I should see "Error: Missing deployment name" in the output
+      Then I should see "Error: Missing deployment name." in the output
       
     Scenario: Unknown deployment name
       When I run "escape run promote -f --deployment _/unknown --to new-env" which fails
@@ -45,3 +46,12 @@ Feature: escape run promote
         And I build the application
       When I run "escape run promote -f --deployment _/not-deployed --to new-env" which fails
       Then I should see "Error: Deployment _/not-deployed has not been deployed in the environment dev." in the output
+
+    Scenario: Errors when no --to environment flag
+      Given a new Escape plan called "not-deployed"
+        And I build the application
+        And I deploy
+        And I release the application
+      When I run "escape run promote -f --deployment _/not-deployed" which fails
+      Then I should see "Error: Missing target environment." in the output
+        And I should see "Use '--to' to define your target environment." in the output
