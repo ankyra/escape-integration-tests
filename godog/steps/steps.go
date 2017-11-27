@@ -10,7 +10,6 @@ import (
 	"github.com/DATA-DOG/godog"
 	state_types "github.com/ankyra/escape-core/state"
 	"github.com/ankyra/escape-integration-tests/godog/escape"
-	"github.com/ankyra/escape/model/config"
 	"github.com/ankyra/escape/model/escape_plan"
 	"github.com/ankyra/escape/model/state"
 	yaml "gopkg.in/yaml.v2"
@@ -71,14 +70,16 @@ func AddSteps(s *godog.Suite) {
 
 	// Matchers
 
-	s.Step(`"([^"]*)" is the active profile in my config`, matchActiveProfileFromConfig)
-	s.Step(`"([^"]*)" is a profile in my config`, matchProfileFromConfig)
+	s.Step(`"([^"]*)" is the active profile in my config`, matcherActiveProfileFromConfig)
+	s.Step(`"([^"]*)" is a profile in my config`, matcherProfileFromConfig)
 
 	s.Step(`an Escape plan should exist$`, matcherEscapePlanExists)
 	s.Step(`an Escape plan should exist at "([^"]*)"`, matcherEscapePlanExistsAt)
 	s.Step(`the Escape plan should have the name "([^"]*)"`, matcherEscapePlanHasName)
 	s.Step(`the Escape plan should have the version "([^"]*)"`, matcherEscapePlanHasVersion)
 	s.Step(`the Escape plan should have the "([^"]*)" file included`, matcherEscapePlanHasInclude)
+
+	s.Step(`Escape state should exist$`, matcherEscapeStateExists)
 }
 
 func runEscapeCmd(args string) error {
@@ -96,96 +97,6 @@ func addProfileToConfig(profileName string) error {
 
 func setActiveProfile(profileName string) error {
 	return escape.Run([]string{"config", "set-profile", profileName})
-}
-
-func matchActiveProfileFromConfig(profileName string) error {
-	c := config.NewEscapeConfig()
-	err := c.FromJson("/tmp/godog_escape_config")
-	if err != nil {
-		return err
-	}
-
-	if c.ActiveProfile != profileName {
-		return fmt.Errorf("'%s' did not match current active profile '%s'", profileName, c.ActiveProfile)
-	}
-
-	return nil
-}
-
-func matchProfileFromConfig(profileName string) error {
-	c := config.NewEscapeConfig()
-	err := c.FromJson("/tmp/godog_escape_config")
-	if err != nil {
-		return err
-	}
-
-	if c.Profiles[profileName] == nil {
-		return fmt.Errorf("'%s' was not found in profiles", profileName)
-	}
-
-	return nil
-}
-
-func matcherEscapePlanExists() error {
-	return matcherEscapePlanExistsAt("escape.yml")
-}
-
-func matcherEscapePlanExistsAt(planLocation string) error {
-	plan := escape_plan.NewEscapePlan()
-	err := plan.LoadConfig(planLocation)
-	if err != nil {
-		return fmt.Errorf("Escape plan not found at %s", planLocation)
-	}
-
-	return nil
-}
-
-func matcherEscapePlanHasName(name string) error {
-	plan := escape_plan.NewEscapePlan()
-	err := plan.LoadConfig("escape.yml")
-	if err != nil {
-		return fmt.Errorf("Escape plan not found")
-	}
-
-	if plan.Name != name {
-		fmt.Errorf("Escape plan name was %s, not %s", plan.Name, name)
-	}
-
-	return nil
-}
-
-func matcherEscapePlanHasVersion(version string) error {
-	plan := escape_plan.NewEscapePlan()
-	err := plan.LoadConfig("escape.yml")
-	if err != nil {
-		return fmt.Errorf("Escape plan not found")
-	}
-
-	if plan.Version != version {
-		fmt.Errorf("Escape plan version was %s, not %s", plan.Version, version)
-	}
-
-	return nil
-}
-
-func matcherEscapePlanHasInclude(include string) error {
-	plan := escape_plan.NewEscapePlan()
-	err := plan.LoadConfig("escape.yml")
-	if err != nil {
-		return fmt.Errorf("Escape plan not found")
-	}
-
-	var found bool
-	for _, includeFile := range plan.Includes {
-		if includeFile == include {
-			found = true
-		}
-	}
-	if !found {
-		fmt.Errorf("Escape plan did not include %s, contains %s", include, plan.Includes)
-	}
-
-	return nil
 }
 
 func aNewEscapePlanCalled(name string) error {
