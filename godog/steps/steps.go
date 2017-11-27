@@ -74,12 +74,14 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`"([^"]*)" is a profile in my config`, matcherProfileFromConfig)
 
 	s.Step(`an Escape plan should exist$`, matcherEscapePlanExists)
-	s.Step(`an Escape plan should exist at "([^"]*)"`, matcherEscapePlanExistsAt)
+	s.Step(`an Escape plan should exist at "([^"]*)"$`, matcherEscapePlanExistsAt)
 	s.Step(`the Escape plan should have the name "([^"]*)"`, matcherEscapePlanHasName)
 	s.Step(`the Escape plan should have the version "([^"]*)"`, matcherEscapePlanHasVersion)
 	s.Step(`the Escape plan should have the "([^"]*)" file included`, matcherEscapePlanHasInclude)
 
 	s.Step(`Escape state should exist$`, matcherEscapeStateExists)
+	s.Step(`Escape state should have the deployment "([^"]*)" in environment "([^"]*)"$`, matcherEscapeStateHasDeployment)
+	s.Step(`the stage "([^"]*)" is empty$`, matcherEscapeStateDeploymentStageEmpty)
 }
 
 func runEscapeCmd(args string) error {

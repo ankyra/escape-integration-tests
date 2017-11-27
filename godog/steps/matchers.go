@@ -1,11 +1,13 @@
 package steps
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
+	core_state "github.com/ankyra/escape-core/state"
 	"github.com/ankyra/escape/model/config"
 	"github.com/ankyra/escape/model/escape_plan"
-	"github.com/ankyra/escape/model/state"
 )
 
 // Config matching
@@ -109,9 +111,80 @@ func matcherEscapeStateExists() error {
 }
 
 func matcherEscapeStateExistsAt(stateLocation string) error {
-	_, err := state.NewLocalStateProvider("escape_state.json").Load("prj", "dev")
+	_, err := loadEscapeState(stateLocation)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+var lastDeploymentName string
+var lastDeploymentEnv string
+
+func matcherEscapeStateHasDeployment(name, env string) error {
+	state, err := loadEscapeState("escape_state.json")
+	if err != nil {
+		return err
+	}
+	environment := state.Environments[env]
+	if environment == nil {
+		return fmt.Errorf("Escape state environment %s not found", env)
+	}
+
+	deployment := environment.Deployments[name]
+
+	if deployment == nil {
+		fmt.Println(environment.Deployments)
+		return fmt.Errorf("Escape state deployment %s not found in environemnt %s", name, env)
+	}
+
+	lastDeploymentName = name
+	lastDeploymentEnv = env
+
+	return nil
+}
+
+func matcherEscapeStateDeploymentStageEmpty(stage string) error {
+	state, err := loadEscapeState("escape_state.json")
+	if err != nil {
+		return err
+	}
+
+	environment := state.Environments[lastDeploymentEnv]
+	if environment == nil {
+		return fmt.Errorf("Escape state environment %s not found", lastDeploymentEnv)
+	}
+
+	deployment := environment.Deployments[lastDeploymentName]
+
+	if deployment == nil {
+		fmt.Println(environment.Deployments)
+		return fmt.Errorf("Escape state deployment %s not found in environemnt %s", lastDeploymentName, lastDeploymentEnv)
+	}
+
+	deploymentStage := deployment.Stages[stage]
+	if deploymentStage == nil {
+		return fmt.Errorf("Escape state stage %s not found on deployment %s in environment %s", stage, lastDeploymentName, lastDeploymentEnv)
+	}
+
+	if deploymentStage.Status.Code != "empty" {
+		return fmt.Errorf("Escape state stage %s was not empty", stage)
+	}
+
+	return nil
+}
+
+func loadEscapeState(path string) (*core_state.ProjectState, error) {
+	fileBytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("Could not open %s, %s", path, err.Error())
+	}
+
+	state := &core_state.ProjectState{}
+	err = json.Unmarshal(fileBytes, state)
+	if err != nil {
+		return nil, fmt.Errorf("Could not unmarshal %s, %s", path, err.Error())
+	}
+
+	return state, nil
 }

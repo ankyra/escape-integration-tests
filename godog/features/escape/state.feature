@@ -18,6 +18,38 @@ Feature: escape state
         When I run "escape state create --help"
         Then I should see "Usage" in the output
 
+      Scenario: Creates state
+        Given a new Escape plan called "release"
+        When I run "escape state create"
+        Then I should see "_/release" in the output
+          And Escape state should exist
+          And Escape state should have the deployment "_/release" in environment "dev"
+          And the stage "build" is empty
+          And the stage "deploy" is empty
+
+      Scenario: Creates state and uses environment flag
+        Given a new Escape plan called "release"
+        When I run "escape state create --environment test"
+        Then I should see "_/release" in the output
+          And Escape state should exist
+          And Escape state should have the deployment "_/release" in environment "test"
+          And the stage "build" is empty
+          And the stage "deploy" is empty
+
+      Scenario: Creates state using different project name
+        Given a new Escape plan called "test/release"
+        When I run "escape state create"
+        Then I should see "test/release" in the output
+          And Escape state should exist
+          And Escape state should have the deployment "test/release" in environment "dev"
+          And the stage "build" is empty
+          And the stage "deploy" is empty
+
+      Scenario: Errors with no escape file
+        When I run "escape state create" which fails
+        Then I should see "Error: Escape plan 'escape.yml' was not found." in the output
+          And I should see "Use 'escape plan init' to create it." in the output
+
   Scenario: escape state list-deployments
 
       Scenario: No extra args
