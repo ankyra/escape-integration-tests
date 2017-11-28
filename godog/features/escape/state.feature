@@ -60,6 +60,15 @@ Feature: escape state
         When I run "escape state list-deployments --help"
         Then I should see "Usage" in the output
 
+      Scenario: Lists deployments
+        Given a new Escape plan called "release"
+          And I release the application
+        Given a new Escape plan called "new/release"
+          And I release the application
+        When I run "escape state list-deployments"
+        Then I should see "_/release" in the output
+          And I should see "new/release" in the output
+
   Scenario: escape state show-deployment
 
       Scenario: No extra args
@@ -70,6 +79,21 @@ Feature: escape state
         When I run "escape state show-deployment --help"
         Then I should see "Usage" in the output
 
+      Scenario: Shows deployment pending if not deployed
+        Given a new Escape plan called "release"
+          And I release the application
+        When I run "escape state show-deployment" which fails
+        Then I should see "_/release" in the output
+          And I should see "pending" in the output
+
+      Scenario: Shows deployment pending if deployed
+        Given a new Escape plan called "release"
+          And I release the application
+          And I deploy
+        When I run "escape state show-deployment" which fails
+        Then I should see "_/release" in the output
+          And I should see "ok" in the output
+
   Scenario: escape state show-providers
 
       Scenario: No extra args
@@ -79,3 +103,18 @@ Feature: escape state
       Scenario: Prints help with flag
         When I run "escape state show-providers --help"
         Then I should see "Usage" in the output
+
+      Scenario: Prints message when there are no providers
+        When I run "escape state show-providers"
+        Then I should see "No providers found in the environment state." in the output
+          And I should see "Try deploying one." in the output
+
+      Scenario: Shows providers
+        Given a new Escape plan called "release"
+          And it provides "test-provider"
+          And it provides "test-provider-two"
+          And I release the application
+          When I deploy
+        When I run "escape state show-providers"
+        Then I should see "test-provider" in the output
+          And I should see "test-provider-two" in the output
