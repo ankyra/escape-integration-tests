@@ -1,7 +1,7 @@
 Integration Tests
 =================
 
-This repository contains integration tests written in godog, testing the 
+This repository contains integration tests written in godog; testing the 
 integration points between the Escape client and the Inventory. 
 
 Please see the [Escape Docs](https://escape.ankyra.io/docs/) for the full
