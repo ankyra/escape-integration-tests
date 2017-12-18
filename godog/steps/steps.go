@@ -46,6 +46,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^"([^"]*)" version "([^"]*)" is present in the build state$`, versionIsPresentInTheBuildState)
 	s.Step(`^"([^"]*)" version "([^"]*)" is present in the deploy state$`, versionIsPresentInTheDeployState)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)"$`, inputVariableWithDefault)
+	s.Step(`^input variable "([^"]*)" with default "([^"]*)" evaluated after dependencies$`, inputVariableWithDefaultEvalAfterDeps)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)" in scope "([^"]*)"$`, inputVariableWithDefaultInScope)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)" and items "([^"]*)"$`, inputVariableWithDefaultAndItems)
 	s.Step(`^its calculated input "([^"]*)" is set to "([^"]*)"$`, itsCalculatedInputIsSetTo)
@@ -134,6 +135,20 @@ func inputVariableWithDefault(variableId, defaultValue string) error {
 	plan.Inputs = append(plan.Inputs, map[string]interface{}{
 		"id":      variableId,
 		"default": defaultValue,
+	})
+	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
+}
+
+func inputVariableWithDefaultEvalAfterDeps(variableId, defaultValue string) error {
+	plan := escape_plan.NewEscapePlan()
+	err := plan.LoadConfig("escape.yml")
+	if err != nil {
+		return nil
+	}
+	plan.Inputs = append(plan.Inputs, map[string]interface{}{
+		"id":                       variableId,
+		"default":                  defaultValue,
+		"eval_before_dependencies": false,
 	})
 	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
 }
@@ -339,6 +354,8 @@ func iDeployRelease(arg1 string) error {
 }
 
 func iReleaseTheApplication() error {
+	//b, _ := ioutil.ReadFile("escape.yml")
+	//fmt.Println(string(b))
 	return escape.Run([]string{"run", "release", "-f"})
 }
 

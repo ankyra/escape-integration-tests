@@ -90,6 +90,18 @@ Feature: Running the build phase
         And "_/my-input-dependency" version "0.0.0" is present in its deployment state
         And its calculated input "PREVIOUS_input_variable" is set to "test"
         And its calculated input "input_variable" is set to "new default baby"
+
+    Scenario: Using Dependency Outputs as Inputs
+       Given a new Escape plan called "output"
+         And output variable "output_variable" with default "test"
+         And I release the application
+       Given a new Escape plan called "parent"
+         And it has "output-latest as dep" as a dependency 
+         And input variable "input_variable" with default "$dep.outputs.output_variable" evaluated after dependencies
+         And I release the application
+        When I deploy "_/parent-v0.0.0"
+        Then "_/parent" version "0.0.0" is present in the deploy state
+         And its calculated input "input_variable" is set to "test"
        
     Scenario: Build with provider (simplest case)
       Given a new Escape plan called "my-provider"
