@@ -9,10 +9,27 @@ depends:
 - escape-latest as escape
 - escape-inventory-latest as inventory
 
+extends:
+- extension-golang-binary-latest
+
+inputs:
+- id: package_name
+  default: "github.com/ankyra/escape-integration-tests"
+  visible: false
+- id: test_command
+  default: "go get github.com/DATA-DOG/godog/cmd/godog && cd godog && godog -t \"~@wip\""
+  visible: false
+- id: go_vendor_path
+  default: godog/vendor/
+  visible: false
+- id: escape_go_dependencies
+  type: list[string]
+  default: 
+  - _/escape-core:github.com/ankyra/escape-core
+
 metadata:
   core_version: $core.version
   escape_version: $escape.version
   inventory_version: $inventory.version
   release_metadata_api_version: $core.metadata.release_metadata_api_version
 
-test: run_tests.sh
