@@ -60,7 +60,7 @@ func Start(inventoryPath string) error {
 	status := 0
 	checkStarted := time.Now()
 	for status != 200 && time.Now().Before(checkStarted.Add(time.Second*10)) {
-		time.Sleep(time.Second / 2)
+		time.Sleep(time.Second / 1000)
 		resp, err := http.Get("http://localhost:7777/health")
 		if err == nil {
 			status = resp.StatusCode
