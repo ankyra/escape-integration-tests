@@ -53,8 +53,7 @@ Feature: escape inventory
           And I release the application
           And I deploy
         When I run "escape inventory query -p two" which fails
-        Then I should see "Error: Project 'two' could not be found." in the output
-          And I should see "It may not exist in the inventory you're using (http://localhost:7777/) and you need to release it first, or you may not have been given access to it." in the output
+         And I should see "Couldn't list applications for project 'two', because the project 'two' could not be found in the Inventory at 'http://localhost:7777/'" in the output
 
       Scenario: Query versions with two versions
         Given a new Escape plan called "release-one"
@@ -71,8 +70,7 @@ Feature: escape inventory
           And I release the application
           And I deploy
         When I run "escape inventory query -p _ -a release-two" which fails
-        Then I should see "Error: Application 'release-two' could not be found." in the output
-          And I should see "It may not exist in the inventory you're using (http://localhost:7777/) and you need to release it first, or you may not have been given access to it." in the output
+         And I should see "Couldn't list versions for application 'release-two' in project '_', because the project '_' or application 'release-two' could not be found in the Inventory at 'http://localhost:7777/'" in the output
 
       Scenario: Query release with version
         Given a new Escape plan called "release-one"
@@ -91,5 +89,4 @@ Feature: escape inventory
           And I release the application
           And I deploy
         When I run "escape inventory query -p _ -a release-one -v 0.0.1" which fails
-        Then I should see "Error: Dependency 'release-one-v0.0.1' could not be found." in the output
-          And I should see "It may not exist in the inventory you're using (http://localhost:7777/) and you need to release it first, or you may not have been given access to it." in the output
+         And I should see "Couldn't get release metadata for 'release-one-v0.0.1', because the release metadata could not be found in the Inventory at 'http://localhost:7777/'. You probably need to release the 'release-one-v0.0.1' package first." in the output
