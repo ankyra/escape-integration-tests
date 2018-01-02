@@ -26,4 +26,4 @@ Feature: escape login
 
     Scenario: Errors when given an invalid URL which fails
       When I run "escape login --url http://localhost:77777" which fails
-      Then I should see "Couldn't get authentication methods from server, because the Inventory at 'http://localhost:7777/' could not be reached: Get http://localhost:77777/api/v1/auth/login-methods:" in the output
+      Then I should see "Couldn't get authentication methods from server, because the Inventory at 'http://localhost:77777' could not be reached: Get http://localhost:77777/api/v1/auth/login-methods:" in the output
