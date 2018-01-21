@@ -247,8 +247,26 @@ Feature: Running the build phase
         And I release the application
 
       Given a new Escape plan called "parent-of-dep-consumer"
-        And it has "my-dep-consumer-latest" as a dependency mapping consumer "provider" to "$p2.deployment"
+        And it has "my-dep-consumer-latest" as a dependency mapping consumer "provider" to "$p1.deployment"
         And it consumes "provider as p1" in the "build" scope
         And it consumes "provider as p2" in the "build" scope
+       When I build the application
+       Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state
+
+    Scenario: Map renamed parent consumers to dependency consumers [part 2]
+      Given a new Escape plan called "my-provider4"
+        And it provides "provider"
+        And I release the application
+       When I deploy "_/my-provider4-v0.0.0"
+       Then "_/my-provider4" version "0.0.0" is present in the deploy state
+
+      Given a new Escape plan called "my-dep-consumer"
+        And it consumes "provider" in the "deploy" scope
+        And I release the application
+
+      Given a new Escape plan called "parent-of-dep-consumer"
+        And it has "my-dep-consumer-latest" as a dependency mapping consumer "provider" to "$p2.deployment"
+        And it consumes "provider as p1" in the "build" scope
+        And it consumes "provider as p2" 
        When I build the application
        Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state
