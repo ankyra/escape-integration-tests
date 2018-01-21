@@ -168,3 +168,69 @@ Feature: Running the build phase
        When I build the application
        Then "_/my-consumer" version "0.0.0" is present in the build state
         And "_/my-provider3" is the provider for "provider"
+
+    Scenario: If a dependency needs a provider
+      Given a new Escape plan called "my-provider4"
+        And it provides "provider"
+        And I release the application
+       When I deploy "_/my-provider4-v0.0.0"
+       Then "_/my-provider4" version "0.0.0" is present in the deploy state
+
+      Given a new Escape plan called "my-dep-consumer"
+        And it consumes "provider" in the "deploy" scope
+        And I release the application
+
+      Given a new Escape plan called "parent-of-dep-consumer"
+        And it has "my-dep-consumer-latest" as a dependency 
+       When I build the application
+       Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state
+
+    Scenario: If a parent and dependency both need the same provider
+      Given a new Escape plan called "my-provider4"
+        And it provides "provider"
+        And I release the application
+       When I deploy "_/my-provider4-v0.0.0"
+       Then "_/my-provider4" version "0.0.0" is present in the deploy state
+
+      Given a new Escape plan called "my-dep-consumer"
+        And it consumes "provider" in the "deploy" scope
+        And I release the application
+
+      Given a new Escape plan called "parent-of-dep-consumer"
+        And it has "my-dep-consumer-latest" as a dependency 
+        And it consumes "provider" in the "build" scope
+       When I build the application
+       Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state
+
+    Scenario: Specify dependency consumers
+      Given a new Escape plan called "my-provider4"
+        And it provides "provider"
+        And I release the application
+       When I deploy "_/my-provider4-v0.0.0"
+       Then "_/my-provider4" version "0.0.0" is present in the deploy state
+
+      Given a new Escape plan called "my-dep-consumer"
+        And it consumes "provider" in the "deploy" scope
+        And I release the application
+
+      Given a new Escape plan called "parent-of-dep-consumer"
+        And it has "my-dep-consumer-latest" as a dependency mapping consumer "provider" to "_/my-provider4"
+       When I build the application
+       Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state
+
+    Scenario: Map parent consumers to dependency consumers
+      Given a new Escape plan called "my-provider4"
+        And it provides "provider"
+        And I release the application
+       When I deploy "_/my-provider4-v0.0.0"
+       Then "_/my-provider4" version "0.0.0" is present in the deploy state
+
+      Given a new Escape plan called "my-dep-consumer"
+        And it consumes "provider" in the "deploy" scope
+        And I release the application
+
+      Given a new Escape plan called "parent-of-dep-consumer"
+        And it has "my-dep-consumer-latest" as a dependency mapping consumer "provider" to "$provider.deployment"
+        And it consumes "provider" in the "build" scope
+       When I build the application
+       Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state

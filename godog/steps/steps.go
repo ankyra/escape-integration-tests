@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/DATA-DOG/godog"
+	core "github.com/ankyra/escape-core"
 	state_types "github.com/ankyra/escape-core/state"
 	"github.com/ankyra/escape-integration-tests/godog/escape"
 	"github.com/ankyra/escape/model/escape_plan"
@@ -55,6 +56,7 @@ func AddSteps(s *godog.Suite) {
 
 	s.Step(`^I release the application$`, iReleaseTheApplication)
 	s.Step(`^it has "([^"]*)" as a dependency$`, itHasAsADependency)
+	s.Step(`^it has "([^"]*)" as a dependency mapping consumer "([^"]*)" to "([^"]*)"$`, itHasAsADependencyMappingConsumerTo)
 	s.Step(`^it has "([^"]*)" set to "([^"]*)"$`, itHasSetTo)
 	s.Step(`^"([^"]*)" version "([^"]*)" is present in its deployment state$`, versionIsPresentInItsDeploymentState)
 	s.Step(`^it provides "([^"]*)"$`, itProvides)
@@ -366,6 +368,18 @@ func itHasAsADependency(dependency string) error {
 		return nil
 	}
 	plan.Depends = append(plan.Depends, dependency)
+	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
+}
+
+func itHasAsADependencyMappingConsumerTo(dependency, consumer, to string) error {
+	plan := escape_plan.NewEscapePlan()
+	err := plan.LoadConfig("escape.yml")
+	if err != nil {
+		return nil
+	}
+	dependencyCfg := core.NewDependencyConfig(dependency)
+	dependencyCfg.Consumes[consumer] = to
+	plan.Depends = append(plan.Depends, dependencyCfg)
 	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
 }
 

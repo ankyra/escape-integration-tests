@@ -2,3 +2,4 @@ deps/
 escape_state.json
 .escape/
 *.swp
+godog/\.*
