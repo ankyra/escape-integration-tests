@@ -270,3 +270,19 @@ Feature: Running the build phase
         And it consumes "provider as p2" 
        When I build the application
        Then "_/parent-of-dep-consumer" version "0.0.0" is present in the build state
+
+    Scenario: Use one dependency as a provider for another dependency
+      Given a new Escape plan called "my-provider"
+        And it provides "provider"
+        And I release the application
+
+      Given a new Escape plan called "my-consumer"
+        And it consumes "provider"
+        And I release the application
+        And I remove the state
+
+      Given a new Escape plan called "parent-release"
+        And it has "my-provider-latest" as a dependency
+        And it has "my-consumer-latest" as a dependency mapping consumer "provider" to "$my-provider.deployment"
+       When I build the application
+       Then "_/parent" version "0.0.0" is present in the build state

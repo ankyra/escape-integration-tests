@@ -40,6 +40,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^I preview the plan$`, iPreviewThePlan)
 	s.Step(`^I should have valid release metadata$`, iShouldHaveValidReleaseMetadata)
 	s.Step(`^the metadata should have its "([^"]*)" set to "([^"]*)"$`, theMetadataShouldHaveItsSetTo)
+	s.Step(`^I remove the state$`, iRemoveTheState)
 	s.Step(`^I build the application$`, iBuildTheApplication)
 	s.Step(`^I build the application again$`, iBuildTheApplication)
 	s.Step(`^I deploy "([^"]*)"$`, iDeployRelease)
@@ -434,6 +435,10 @@ func versionIsPresentInItsDeploymentState(deploymentName, version string) error 
 	CapturedDeployment = d
 	CapturedStage = "deploy"
 	return nil
+}
+
+func iRemoveTheState() error {
+	return os.RemoveAll("escape_state.json")
 }
 
 func versionIsPresentInTheBuildState(deploymentName, version string) error {
