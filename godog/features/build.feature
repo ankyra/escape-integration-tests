@@ -285,4 +285,4 @@ Feature: Running the build phase
         And it has "my-provider-latest" as a dependency
         And it has "my-consumer-latest" as a dependency mapping consumer "provider" to "$my-provider.deployment"
        When I build the application
-       Then "_/parent" version "0.0.0" is present in the build state
+       Then "_/parent-release" version "0.0.0" is present in the build state

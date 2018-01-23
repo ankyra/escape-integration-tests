@@ -341,19 +341,20 @@ func iShouldSeeInTheOutput(value string) error {
 }
 
 func iBuildTheApplication() error {
-	return escape.Run([]string{"run", "build"})
+	err := escape.Run([]string{"run", "build"})
+	return OutputEscapeStateOnError(err)
 }
 
 func iDeploy() error {
 	err := escape.Run([]string{"run", "deploy"})
 	CapturedStage = "deploy"
-	return err
+	return OutputEscapeStateOnError(err)
 }
 
 func iDeployRelease(arg1 string) error {
 	err := escape.Run([]string{"run", "deploy", arg1})
 	CapturedStage = "deploy"
-	return err
+	return OutputEscapeStateOnError(err)
 }
 
 func iReleaseTheApplication() error {
@@ -430,6 +431,7 @@ func isTheProviderFor(deploymentName, providerName string) error {
 func versionIsPresentInItsDeploymentState(deploymentName, version string) error {
 	d := CapturedDeployment.GetDeploymentOrMakeNew("build", deploymentName)
 	if d.GetVersion("deploy") != version {
+		OutputEscapeState()
 		return fmt.Errorf("Expecting '%s', got '%s'", version, d.GetVersion("deploy"))
 	}
 	CapturedDeployment = d
@@ -444,10 +446,11 @@ func iRemoveTheState() error {
 func versionIsPresentInTheBuildState(deploymentName, version string) error {
 	env, err := state.NewLocalStateProvider("escape_state.json").Load("prj", "dev")
 	if err != nil {
-		return err
+		return OutputEscapeStateOnError(err)
 	}
 	d := env.GetOrCreateDeploymentState(deploymentName)
 	if d.GetVersion("build") != version {
+		OutputEscapeState()
 		return fmt.Errorf("Expecting '%s', got '%s'", version, d.GetVersion("build"))
 	}
 	CapturedDeployment = d
