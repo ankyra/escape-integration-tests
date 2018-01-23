@@ -1,0 +1,22 @@
+{
+   "name": "bspaans",
+   "environments": {
+      "dev": {
+         "name": "dev",
+         "deployments": {
+            "_/name": {
+               "name": "_/name",
+               "release": "_/name",
+               "stages": {
+                  "deploy": {
+                     "status": {
+                        "status": "test_failure",
+                        "updated_at": "2018-01-23T17:38:27.037240686Z"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}

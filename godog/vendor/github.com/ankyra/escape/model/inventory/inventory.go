@@ -25,12 +25,11 @@ import (
 
 type Inventory interface {
 	QueryReleaseMetadata(project, name, version string) (*core.ReleaseMetadata, error)
-	QueryPreviousReleaseMetadata(project, name, version string) (*core.ReleaseMetadata, error)
 	QueryNextVersion(project, name, versionPrefix string) (string, error)
 	DownloadRelease(project, name, version, targetFile string) error
 	UploadRelease(project, releasePath string, metadata *core.ReleaseMetadata) error
 	GetAuthMethods(url string) (map[string]*types.AuthMethod, error)
-	LoginWithSecretToken(url, username, password string) (string, error)
+	Login(url, username, password string) (string, error)
 
 	ListProjects() ([]string, error)
 	ListApplications(project string) ([]string, error)

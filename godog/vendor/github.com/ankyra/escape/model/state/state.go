@@ -17,9 +17,9 @@ limitations under the License.
 package state
 
 import (
+	"github.com/ankyra/escape-core/state"
 	"github.com/ankyra/escape/model/state/local"
 	"github.com/ankyra/escape/model/state/remote"
-	"github.com/ankyra/escape-core/state"
 )
 
 type StateProvider interface {

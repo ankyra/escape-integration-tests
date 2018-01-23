@@ -20,11 +20,12 @@ inputs:
   default: "go get github.com/DATA-DOG/godog/cmd/godog && cd godog && godog -t \"~@wip\""
   visible: false
 - id: go_vendor_path
-  default: godog/vendor/
+  default: godog/vendor
   visible: false
 - id: escape_go_dependencies
   type: list[string]
   default: 
+  - _/escape:github.com/ankyra/escape
   - _/escape-core:github.com/ankyra/escape-core
 
 metadata:

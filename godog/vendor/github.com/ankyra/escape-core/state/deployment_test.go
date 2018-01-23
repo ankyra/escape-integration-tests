@@ -17,6 +17,9 @@ limitations under the License.
 package state
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/ankyra/escape-core"
 	. "gopkg.in/check.v1"
 )
@@ -58,10 +61,10 @@ func (s *suite) Test_GetRootDeploymentStage(c *C) {
 	c.Assert(buildRootStage.GetRootDeploymentStage(), Equals, "build")
 }
 
-func (s *suite) Test_GetDependencyPath(c *C) {
-	c.Assert(depl.GetDependencyPath(), Equals, "archive-release")
-	c.Assert(fullDepl.GetDependencyPath(), Equals, "archive-full")
-	c.Assert(deplWithDeps.GetDependencyPath(), Equals, "archive-release-with-deps:archive-release")
+func (s *suite) Test_GetDeploymentPath(c *C) {
+	c.Assert(depl.GetDeploymentPath(), Equals, "archive-release")
+	c.Assert(fullDepl.GetDeploymentPath(), Equals, "archive-full")
+	c.Assert(deplWithDeps.GetDeploymentPath(), Equals, "archive-release-with-deps:archive-release")
 }
 
 func (s *suite) Test_GetDeploymentOrMakeNew(c *C) {
@@ -148,4 +151,61 @@ func (s *suite) Test_GetProviders_includes_parent_build_providers_for_dep(c *C) 
 	c.Assert(providers["kubernetes"], Equals, "archive-release")
 	c.Assert(providers["gcp"], Equals, "archive-release-build")
 	c.Assert(providers["doesnt-exist"], Equals, "doesnt-exist-build")
+}
+
+func (s *suite) Test_ConfigureProviders_uses_extra_providers(c *C) {
+	metadata := core.NewReleaseMetadata("test", "1.0")
+	metadata.Consumes = []*core.ConsumerConfig{
+		core.NewConsumerConfig("provider1"),
+	}
+	providers := map[string]string{
+		"provider1": "otherdepl",
+	}
+	err := deplWithDeps.ConfigureProviders(metadata, "deploy", providers)
+	c.Assert(err, IsNil)
+	returnedProviders := deplWithDeps.GetProviders("deploy")
+	c.Assert(returnedProviders["provider1"], Equals, "otherdepl")
+}
+
+func (s *suite) Test_ConfigureProviders_uses_renamed_extra_providers(c *C) {
+	metadata := core.NewReleaseMetadata("test", "1.0")
+	cfg, _ := core.NewConsumerConfigFromString("provider1 as p1")
+	metadata.Consumes = []*core.ConsumerConfig{cfg}
+	providers := map[string]string{
+		"p1": "otherdepl",
+	}
+	err := deplWithDeps.ConfigureProviders(metadata, "deploy", providers)
+	c.Assert(err, IsNil)
+	returnedProviders := deplWithDeps.GetProviders("deploy")
+	c.Assert(returnedProviders["p1"], Equals, "otherdepl")
+}
+
+func (s *suite) Test_ConfigureProviders_fails_if_renamed_provider_not_found(c *C) {
+	metadata := core.NewReleaseMetadata("test", "1.0")
+	cfg, _ := core.NewConsumerConfigFromString("provider1 as p1")
+	metadata.Consumes = []*core.ConsumerConfig{cfg}
+	providers := map[string]string{}
+	err := deplWithDeps.ConfigureProviders(metadata, "deploy", providers)
+	c.Assert(err, DeepEquals, errors.New("Missing provider 'p1' of type 'provider1'. This can be configured using the -p / --extra-provider flag."))
+}
+
+func (s *suite) Test_ConfigureProviders_fails_if_provider_missing(c *C) {
+	metadata := core.NewReleaseMetadata("test", "1.0")
+	metadata.Consumes = []*core.ConsumerConfig{
+		core.NewConsumerConfig("provider1"),
+	}
+	err := deplWithDeps.ConfigureProviders(metadata, "deploy", nil)
+	c.Assert(err, DeepEquals, fmt.Errorf("Missing provider of type 'provider1'. This can be configured using the -p / --extra-provider flag."))
+}
+
+func (s *suite) Test_ConfigureProviders_succeeds_if_provider_already_configured(c *C) {
+	metadata := core.NewReleaseMetadata("test", "1.0")
+	metadata.Consumes = []*core.ConsumerConfig{
+		core.NewConsumerConfig("provider1"),
+	}
+	deplWithDeps.SetProvider("deploy", "provider1", "otherdepl")
+	err := deplWithDeps.ConfigureProviders(metadata, "deploy", nil)
+	c.Assert(err, IsNil)
+	returnedProviders := deplWithDeps.GetProviders("deploy")
+	c.Assert(returnedProviders["provider1"], Equals, "otherdepl")
 }

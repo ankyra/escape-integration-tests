@@ -3,3 +3,4 @@ escape_state.json
 .escape/
 *.swp
 godog/\.*
+godog/vendor/github.com/ankyra/escape/escape

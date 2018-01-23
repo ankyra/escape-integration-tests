@@ -1,0 +1,25 @@
+{
+    "name": "waddup",
+    "environments": {
+        "dev": {
+            "deployments": {
+                "_/name": {
+                    "stages": {
+                        "deploy": {
+                            "inputs": {
+                                "input_variable": "testinput"
+                            },
+                            "calculated_inputs": {
+                                "input_variable": "previous testinput"
+                            },
+                            "calculated_outputs": {
+                                "output_variable": "testoutput"
+                            }
+                        }
+                    },
+                    "version": "0.0.1"
+                }
+            }
+        }
+    }
+}

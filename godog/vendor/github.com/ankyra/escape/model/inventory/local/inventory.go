@@ -36,9 +36,6 @@ func (r *LocalInventory) QueryReleaseMetadata(project, name, version string) (*c
 	}
 	return nil, fmt.Errorf("Not implemented")
 }
-func (r *LocalInventory) QueryPreviousReleaseMetadata(project, name, version string) (*core.ReleaseMetadata, error) {
-	return nil, fmt.Errorf("Not implemented")
-}
 
 func (r *LocalInventory) QueryNextVersion(project, name, versionPrefix string) (string, error) {
 	return "", fmt.Errorf("Auto versioning is not implemented in local inventory. The inventory can be configured in the global Escape configuration (see `escape config`)")
@@ -56,7 +53,7 @@ func (r *LocalInventory) GetAuthMethods(url string) (map[string]*types.AuthMetho
 	return nil, nil
 }
 
-func (r *LocalInventory) LoginWithSecretToken(url, username, password string) (string, error) {
+func (r *LocalInventory) Login(url, username, password string) (string, error) {
 	return "", nil
 }
 func (r *LocalInventory) ListProjects() ([]string, error) {

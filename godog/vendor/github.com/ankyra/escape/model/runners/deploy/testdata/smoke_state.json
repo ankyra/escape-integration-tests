@@ -1,0 +1,35 @@
+{
+   "name": "1000",
+   "environments": {
+      "dev": {
+         "name": "dev",
+         "deployments": {
+            "_/name": {
+               "name": "_/name",
+               "release": "_/name",
+               "stages": {
+                  "build": {
+                     "status": {
+                        "status": "empty",
+                        "updated_at": "2017-07-19T03:36:12.905906168+01:00"
+                     }
+                  },
+                  "deploy": {
+                     "calculated_inputs": {
+                        "variable": "testinput"
+                     },
+                     "calculated_outputs": {
+                        "variable": "testoutput test"
+                     },
+                     "version": "0.0.1",
+                     "status": {
+                        "status": "ok",
+                        "updated_at": "2018-01-23T17:38:27.05253805Z"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}

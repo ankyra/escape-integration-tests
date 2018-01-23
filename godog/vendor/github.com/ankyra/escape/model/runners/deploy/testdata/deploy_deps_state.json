@@ -1,0 +1,62 @@
+{
+   "name": "1000",
+   "environments": {
+      "dev": {
+         "name": "dev",
+         "deployments": {
+            "_/name": {
+               "name": "_/name",
+               "release": "_/name",
+               "stages": {
+                  "build": {
+                     "status": {
+                        "status": "empty",
+                        "updated_at": "2017-07-19T02:48:43.202958693+01:00"
+                     }
+                  },
+                  "deploy": {
+                     "inputs": {
+                        "variable": "testinput"
+                     },
+                     "calculated_inputs": {
+                        "variable": "testinput"
+                     },
+                     "calculated_outputs": {
+                        "output_variable": "dependency output"
+                     },
+                     "deployments": {
+                        "_/dependency": {
+                           "name": "_/dependency",
+                           "release": "_/dependency",
+                           "stages": {
+                              "deploy": {
+                                 "inputs": {
+                                    "variable": "testinput"
+                                 },
+                                 "calculated_inputs": {
+                                    "PREVIOUS_OUTPUT_output_variable": "dependency output"
+                                 },
+                                 "calculated_outputs": {
+                                    "output_variable": "dependency output"
+                                 },
+                                 "version": "0.0.1",
+                                 "status": {
+                                    "status": "ok",
+                                    "updated_at": "2018-01-23T17:38:26.972194822Z"
+                                 }
+                              }
+                           }
+                        }
+                     },
+                     "version": "0.0.1",
+                     "status": {
+                        "status": "ok",
+                        "updated_at": "2018-01-23T17:38:26.972682377Z"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
