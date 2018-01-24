@@ -64,6 +64,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^it consumes "([^"]*)"$`, itConsumes)
 	s.Step(`^it consumes "([^"]*)" in the "([^"]*)" scope$`, itConsumesInTheScope)
 	s.Step(`^"([^"]*)" is the provider for "([^"]*)"$`, isTheProviderFor)
+	s.Step(`^"([^"]*)" is the provider for "([^"]*)" in "([^"]*)"$`, isTheProviderForIn)
 	s.Step(`^output variable "([^"]*)" with default "([^"]*)"$`, outputVariableWithDefault)
 	s.Step(`^output variable "([^"]*)" with default '([^']*)'$`, outputVariableWithDefault)
 	s.Step(`^list output variable "([^"]*)" with default '([^']*)'$`, outputListVariableWithDefault)
@@ -358,9 +359,8 @@ func iDeployRelease(arg1 string) error {
 }
 
 func iReleaseTheApplication() error {
-	//b, _ := ioutil.ReadFile("escape.yml")
-	//fmt.Println(string(b))
-	return escape.Run([]string{"run", "release", "-f"})
+	err := escape.Run([]string{"run", "release", "-f"})
+	return OutputEscapeStateOnError(err)
 }
 
 func itHasAsADependency(dependency string) error {
@@ -417,15 +417,33 @@ func itConsumesInTheScope(provider, scope string) error {
 }
 
 func isTheProviderFor(deploymentName, providerName string) error {
+	var err error
 	d := CapturedDeployment.GetDeploymentOrMakeNew("build", deploymentName)
 	prov, found := d.GetProviders("build")[providerName]
 	if !found {
-		return fmt.Errorf("'%s' provider not found", providerName)
+		err = fmt.Errorf("'%s' provider not found", providerName)
 	}
-	if prov != deploymentName {
-		return fmt.Errorf("'%s' provider is '%s' not expected '%s'", providerName, prov, deploymentName)
+	if err == nil && prov != deploymentName {
+		err = fmt.Errorf("'%s' provider is '%s' not expected '%s'", providerName, prov, deploymentName)
 	}
-	return nil
+	return OutputEscapeStateOnError(err)
+}
+
+func isTheProviderForIn(deploymentName, providerName, deploymentPath string) error {
+	var err error
+	d, err := CapturedDeployment.GetEnvironmentState().ResolveDeploymentPath("build", deploymentPath)
+	if err != nil {
+		return OutputEscapeStateOnError(err)
+	}
+	prov, found := d.GetProviders("deploy")[providerName]
+	if !found {
+		fmt.Println(d)
+		err = fmt.Errorf("'%s' provider not found", providerName)
+	}
+	if err == nil && prov != deploymentName {
+		err = fmt.Errorf("'%s' provider is '%s', but expecting '%s'", providerName, prov, deploymentName)
+	}
+	return OutputEscapeStateOnError(err)
 }
 
 func versionIsPresentInItsDeploymentState(deploymentName, version string) error {

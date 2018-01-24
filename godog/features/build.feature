@@ -282,7 +282,27 @@ Feature: Running the build phase
         And I remove the state
 
       Given a new Escape plan called "parent-release"
-        And it has "my-provider-latest" as a dependency
+        And it has "my-provider-latest as my-provider" as a dependency
         And it has "my-consumer-latest" as a dependency mapping consumer "provider" to "$my-provider.deployment"
        When I build the application
        Then "_/parent-release" version "0.0.0" is present in the build state
+
+    Scenario: Use the same dependency twice for two other dependencies
+      Given a new Escape plan called "my-provider"
+        And it provides "provider"
+        And I release the application
+
+      Given a new Escape plan called "my-consumer"
+        And it consumes "provider"
+        And I release the application
+        And I remove the state
+
+      Given a new Escape plan called "parent-release"
+        And it has "my-provider-latest as p1" as a dependency
+        And it has "my-provider-latest as p2" as a dependency
+        And it has "my-consumer-latest as c1" as a dependency mapping consumer "provider" to "$p1.deployment"
+        And it has "my-consumer-latest as c2" as a dependency mapping consumer "provider" to "$p2.deployment"
+       When I build the application
+       Then "_/parent-release" version "0.0.0" is present in the build state
+        And "_/parent-release:p1" is the provider for "provider" in "_/parent-release:c1"
+        And "_/parent-release:p2" is the provider for "provider" in "_/parent-release:c2"
