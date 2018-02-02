@@ -46,7 +46,10 @@ func NewRunnerContext(context Context, rootStage string) (*RunnerContext, error)
 	if metadata == nil {
 		return nil, fmt.Errorf("Missing metadata in context. This is a bug in Escape.")
 	}
-	deplState := context.GetEnvironmentState().GetOrCreateDeploymentState(context.GetRootDeploymentName())
+	deplState, err := context.GetEnvironmentState().GetOrCreateDeploymentState(context.GetRootDeploymentName())
+	if err != nil {
+		return nil, err
+	}
 	deplState.Release = metadata.GetVersionlessReleaseId()
 	return &RunnerContext{
 		path:                paths.NewPath(),
@@ -117,8 +120,12 @@ func (r *RunnerContext) GetScriptEnvironmentForPreDependencyStep(stage string) (
 	return state.ToScriptEnvironmentForDependencyStep(r.GetDeploymentState(), r.GetReleaseMetadata(), stage, r.context)
 }
 
-func (r *RunnerContext) NewContextForDependency(metadata *core.ReleaseMetadata, consumerMapping map[string]string) (*RunnerContext, error) {
-	depl := r.deploymentState.GetDeploymentOrMakeNew(r.stage, metadata.GetVersionlessReleaseId())
+func (r *RunnerContext) NewContextForDependency(deploymentName string, metadata *core.ReleaseMetadata, consumerMapping map[string]string) (*RunnerContext, error) {
+	depl, err := r.deploymentState.GetDeploymentOrMakeNew(r.stage, deploymentName)
+	if err != nil {
+		return nil, err
+	}
+	depl.Release = metadata.GetVersionlessReleaseId()
 
 	scriptEnv, err := r.GetScriptEnvironment(r.stage)
 	if err != nil {

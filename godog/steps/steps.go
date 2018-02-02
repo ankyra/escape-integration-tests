@@ -418,7 +418,10 @@ func itConsumesInTheScope(provider, scope string) error {
 
 func isTheProviderFor(deploymentName, providerName string) error {
 	var err error
-	d := CapturedDeployment.GetDeploymentOrMakeNew("build", deploymentName)
+	d, err := CapturedDeployment.GetDeploymentOrMakeNew("build", deploymentName)
+	if err != nil {
+		return err
+	}
 	prov, found := d.GetProviders("build")[providerName]
 	if !found {
 		err = fmt.Errorf("'%s' provider not found", providerName)
@@ -447,7 +450,10 @@ func isTheProviderForIn(deploymentName, providerName, deploymentPath string) err
 }
 
 func versionIsPresentInItsDeploymentState(deploymentName, version string) error {
-	d := CapturedDeployment.GetDeploymentOrMakeNew("build", deploymentName)
+	d, err := CapturedDeployment.GetDeploymentOrMakeNew("build", deploymentName)
+	if err != nil {
+		return err
+	}
 	if d.GetVersion("deploy") != version {
 		OutputEscapeState()
 		return fmt.Errorf("Expecting '%s', got '%s'", version, d.GetVersion("deploy"))
@@ -466,7 +472,10 @@ func versionIsPresentInTheBuildState(deploymentName, version string) error {
 	if err != nil {
 		return OutputEscapeStateOnError(err)
 	}
-	d := env.GetOrCreateDeploymentState(deploymentName)
+	d, err := env.GetOrCreateDeploymentState(deploymentName)
+	if err != nil {
+		return err
+	}
 	if d.GetVersion("build") != version {
 		OutputEscapeState()
 		return fmt.Errorf("Expecting '%s', got '%s'", version, d.GetVersion("build"))
@@ -481,7 +490,10 @@ func versionIsPresentInTheDeployState(deploymentName, version string) error {
 	if err != nil {
 		return err
 	}
-	d := env.GetOrCreateDeploymentState(deploymentName)
+	d, err := env.GetOrCreateDeploymentState(deploymentName)
+	if err != nil {
+		return err
+	}
 	if d.GetVersion("deploy") != version {
 		return fmt.Errorf("Expecting '%s', got '%s'", version, d.GetVersion("build"))
 	}
@@ -535,8 +547,11 @@ func deploymentNameIsPresentInEnvironmentState(deploymentName, environment strin
 	if err != nil {
 		return err
 	}
-
-	deployment := env.Project.GetEnvironmentStateOrMakeNew(environment).Deployments[deploymentName]
+	e, err := env.Project.GetEnvironmentStateOrMakeNew(environment)
+	if err != nil {
+		return err
+	}
+	deployment := e.Deployments[deploymentName]
 	if deployment == nil {
 		return fmt.Errorf("%s not found in %s environment state", deploymentName, environment)
 	}

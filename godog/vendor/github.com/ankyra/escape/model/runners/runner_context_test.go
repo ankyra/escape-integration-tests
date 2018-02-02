@@ -80,9 +80,10 @@ func (s *testSuite) Test_NewContextForDependency(c *C) {
 	c.Assert(err, IsNil)
 	metadata := core.NewReleaseMetadata("test", "1.0")
 	consumers := map[string]string{}
-	depl := runCtx.deploymentState.GetDeploymentOrMakeNew("deploy",
+	depl, err := runCtx.deploymentState.GetDeploymentOrMakeNew("deploy",
 		metadata.GetVersionlessReleaseId())
-	depRunCtx, err := runCtx.NewContextForDependency(metadata, consumers)
+	c.Assert(err, IsNil)
+	depRunCtx, err := runCtx.NewContextForDependency(metadata.GetVersionlessReleaseId(), metadata, consumers)
 	c.Assert(err, IsNil)
 	c.Assert(depRunCtx.GetEnvironmentState(), Equals, runCtx.environmentState)
 	c.Assert(depRunCtx.GetReleaseMetadata(), Equals, metadata)
@@ -108,7 +109,7 @@ func (s *testSuite) Test_NewContextForDependency_with_consumers(c *C) {
 	consumers := map[string]string{
 		"provider1": "otherdepl",
 	}
-	depRunCtx, err := runCtx.NewContextForDependency(metadata, consumers)
+	depRunCtx, err := runCtx.NewContextForDependency(metadata.GetVersionlessReleaseId(), metadata, consumers)
 	c.Assert(err, IsNil)
 	c.Assert(depRunCtx.GetDeploymentState().GetProviders("deploy")["provider1"], Equals, "otherdepl")
 }
@@ -138,7 +139,7 @@ func (s *testSuite) Test_NewContextForDependency_evaluates_consumers(c *C) {
 	consumers := map[string]string{
 		"provider1": "$provider1.deployment",
 	}
-	depRunCtx, err := runCtx.NewContextForDependency(metadata, consumers)
+	depRunCtx, err := runCtx.NewContextForDependency(metadata.GetVersionlessReleaseId(), metadata, consumers)
 	c.Assert(err, IsNil)
 	c.Assert(depRunCtx.GetDeploymentState().GetProviders("deploy")["provider1"], Equals, "otherdepl")
 }
@@ -161,7 +162,7 @@ func (s *testSuite) Test_NewContextForDependency_fails_if_toScriptEnviroment_fai
 	consumers := map[string]string{
 		"provider1": "$provider1.deployment",
 	}
-	_, err = runCtx.NewContextForDependency(metadata, consumers)
+	_, err = runCtx.NewContextForDependency(metadata.GetVersionlessReleaseId(), metadata, consumers)
 	c.Assert(err, DeepEquals, errors.New("Failed to evaluate '$provider1.deployment': Field '$' was not found in environment."))
 }
 
@@ -182,7 +183,7 @@ func (s *testSuite) Test_NewContextForDependency_fails_if_toScriptEnviroment_fai
 	consumers := map[string]string{
 		"provider1": "$provider1.deployment",
 	}
-	_, err = runCtx.NewContextForDependency(metadata, consumers)
+	_, err = runCtx.NewContextForDependency(metadata.GetVersionlessReleaseId(), metadata, consumers)
 	c.Assert(err, DeepEquals, errors.New("Nope"))
 }
 
@@ -198,7 +199,7 @@ func (s *testSuite) Test_NewContextForDependency_fails_if_missing_consumer(c *C)
 		core.NewConsumerConfig("provider1"),
 	}
 	consumers := map[string]string{}
-	_, err = runCtx.NewContextForDependency(metadata, consumers)
+	_, err = runCtx.NewContextForDependency(metadata.GetVersionlessReleaseId(), metadata, consumers)
 	c.Assert(err, Not(IsNil))
 	c.Assert(err, DeepEquals, fmt.Errorf("Missing provider of type 'provider1'. This can be configured using the -p / --extra-provider flag."))
 }
