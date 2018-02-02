@@ -66,7 +66,7 @@ Feature: escape errands
 
       Scenario: Runs errand
         Given a new Escape plan called "errand-release"
-          And errand "test-errand" with script "test.sh"
+          And errand "test-errand" with script "errand.sh"
           And I release the application
           And I deploy "_/errand-release-v0.0.0"
         When I run "escape errands run test-errand --deployment _/errand-release"
