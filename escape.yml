@@ -1,5 +1,5 @@
 name: heist/escape-integration-tests
-version: 0.1.@
+version: 0.3.@
 description: | 
   Integration tests written in godog; testing the integration points between
   the Escape client and the Inventory. 
@@ -24,6 +24,7 @@ inputs:
   visible: false
 - id: escape_go_dependencies
   type: list[string]
+  visible: false
   default: 
   - _/escape:github.com/ankyra/escape
   - _/escape-core:github.com/ankyra/escape-core
