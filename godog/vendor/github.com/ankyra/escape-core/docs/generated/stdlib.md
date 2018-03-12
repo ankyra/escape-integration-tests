@@ -45,26 +45,6 @@ Slice a list. Usually accessed implicitly using slice syntax (eg. `list[0:5]`)
 
 # Functions acting on strings
 
-## concat(v1 :: string, v2 :: string, ...)
-
-Concatate stringable arguments
-
-## title(v :: string)
-
-Returns a copy of the string v with all Unicode characters mapped to their title case
-
-## base64_decode()
-
-Decode string from base64
-
-## track_major_version()
-
-Track major version
-
-## upper(v :: string)
-
-Returns a copy of the string v with all Unicode characters mapped to their upper case
-
 ## replace(old :: string, new :: string, n :: integer)
 
 Replace returns a copy of the string s with the first n non-overlapping instances of old replaced by new. If old is empty, it matches at the beginning of the string and after each UTF-8 sequence, yielding up to k+1 replacements for a k-rune string. If n < 0, there is no limit on the number of replacements.
@@ -73,33 +53,53 @@ Replace returns a copy of the string s with the first n non-overlapping instance
 
 Read the contents of a file
 
-## track_minor_version()
+## upper(v :: string)
 
-Track minor version
-
-## split(sep :: string)
-
-Split slices s into all substrings separated by sep and returns a slice of the substrings between those separators. If sep is empty, Split splits after each UTF-8 sequence.
-
-## track_version()
-
-Track version
-
-## lower(v :: string)
-
-Returns a copy of the string v with all Unicode characters mapped to their lower case
-
-## base64_encode()
-
-Encode string to base64
+Returns a copy of the string v with all Unicode characters mapped to their upper case
 
 ## trim()
 
 Returns a slice of the string s, with all leading and trailing white space removed, as defined by Unicode. 
 
+## track_major_version()
+
+Track major version
+
 ## track_patch_version()
 
 Track patch version
+
+## base64_encode()
+
+Encode string to base64
+
+## base64_decode()
+
+Decode string from base64
+
+## track_minor_version()
+
+Track minor version
+
+## track_version()
+
+Track version
+
+## concat(v1 :: string, v2 :: string, ...)
+
+Concatate stringable arguments
+
+## lower(v :: string)
+
+Returns a copy of the string v with all Unicode characters mapped to their lower case
+
+## title(v :: string)
+
+Returns a copy of the string v with all Unicode characters mapped to their title case
+
+## split(sep :: string)
+
+Split slices s into all substrings separated by sep and returns a slice of the substrings between those separators. If sep is empty, Split splits after each UTF-8 sequence.
 
 
 # Functions acting on integers

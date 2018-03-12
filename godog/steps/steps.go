@@ -50,6 +50,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)"$`, inputVariableWithDefault)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)" evaluated after dependencies$`, inputVariableWithDefaultEvalAfterDeps)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)" in scope "([^"]*)"$`, inputVariableWithDefaultInScope)
+	s.Step(`^input variable "([^"]*)" in scope "([^"]*)"$`, inputVariableInScope)
 	s.Step(`^input variable "([^"]*)" with default "([^"]*)" and items "([^"]*)"$`, inputVariableWithDefaultAndItems)
 	s.Step(`^its calculated input "([^"]*)" is set to "([^"]*)"$`, itsCalculatedInputIsSetTo)
 	s.Step(`^its calculated input "([^"]*)" is not set$`, itsCalculatedInputIsNotSet)
@@ -58,6 +59,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^I release the application$`, iReleaseTheApplication)
 	s.Step(`^it has "([^"]*)" as a dependency$`, itHasAsADependency)
 	s.Step(`^it has "([^"]*)" as a dependency mapping consumer "([^"]*)" to "([^"]*)"$`, itHasAsADependencyMappingConsumerTo)
+	s.Step(`^it has "([^"]*)" as a dependency mapping "([^"]*)" to "([^"]*)"$`, itHasAsADependencyMappingTo)
 	s.Step(`^it has "([^"]*)" set to "([^"]*)"$`, itHasSetTo)
 	s.Step(`^"([^"]*)" version "([^"]*)" is present in its deployment state$`, versionIsPresentInItsDeploymentState)
 	s.Step(`^it provides "([^"]*)"$`, itProvides)
@@ -153,6 +155,19 @@ func inputVariableWithDefaultEvalAfterDeps(variableId, defaultValue string) erro
 		"id":                       variableId,
 		"default":                  defaultValue,
 		"eval_before_dependencies": false,
+	})
+	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
+}
+
+func inputVariableInScope(variableId, scope string) error {
+	plan := escape_plan.NewEscapePlan()
+	err := plan.LoadConfig("escape.yml")
+	if err != nil {
+		return nil
+	}
+	plan.Inputs = append(plan.Inputs, map[string]interface{}{
+		"id":     variableId,
+		"scopes": []string{scope},
 	})
 	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
 }
@@ -370,6 +385,18 @@ func itHasAsADependency(dependency string) error {
 		return nil
 	}
 	plan.Depends = append(plan.Depends, dependency)
+	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
+}
+
+func itHasAsADependencyMappingTo(dependency, key, value string) error {
+	plan := escape_plan.NewEscapePlan()
+	err := plan.LoadConfig("escape.yml")
+	if err != nil {
+		return nil
+	}
+	dependencyCfg := core.NewDependencyConfig(dependency)
+	dependencyCfg.Mapping[key] = value
+	plan.Depends = append(plan.Depends, dependencyCfg)
 	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
 }
 

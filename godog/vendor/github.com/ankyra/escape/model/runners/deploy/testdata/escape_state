@@ -1,5 +1,5 @@
 {
-   "name": "bspaans",
+   "name": "local-state-project",
    "environments": {
       "dev": {
          "name": "dev",
@@ -11,7 +11,8 @@
                   "deploy": {
                      "status": {
                         "status": "test_failure",
-                        "updated_at": "2018-02-02T19:43:11.819547857Z"
+                        "updated_at": "2018-02-13T17:07:24.44915104Z",
+                        "data": "Deployment state '_/name' for release 'name-v0.0.1' could not be found\n\nYou may need to run `escape run deploy name-v0.0.1` to resolve this issue"
                      }
                   }
                }

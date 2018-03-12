@@ -29,7 +29,7 @@ import (
 var ServerProcess *exec.Cmd
 
 func Start(inventoryPath string) error {
-	fmt.Println("Inventory starting")
+	fmt.Println("Inventory starting on port 7777")
 
 	go func() {
 		os.RemoveAll("test.db")

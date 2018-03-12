@@ -91,6 +91,43 @@ Feature: Running the build phase
         And its calculated input "PREVIOUS_input_variable" is set to "test"
         And its calculated input "input_variable" is set to "new default baby"
 
+    Scenario: Dependency input variable scope is not added to parent if part of mapping
+      Given a new Escape plan called "my-scoped-input-dependency"
+        And input variable "input_variable" in scope "deploy"
+        And I run "escape run release -f -v input_variable="
+      Given a new Escape plan called "my-release"
+        And it has "my-scoped-input-dependency-latest" as a dependency mapping "input_variable" to "test"
+       When I build the application
+       Then "_/my-release" version "0.0.0" is present in the build state
+
+    Scenario: Dependency input variable scope is honoured
+      Given a new Escape plan called "my-scoped-input-dependency"
+        And input variable "input_variable" in scope "deploy"
+        And I run "escape run release -f -v input_variable="
+      Given a new Escape plan called "my-release"
+        And it has "my-scoped-input-dependency-latest" as a dependency 
+       When I run "escape run build" which fails
+
+    Scenario: Dependency input variable scope is honoured - with default
+      Given a new Escape plan called "my-scoped-input-dependency"
+        And input variable "input_variable" with default "test" in scope "deploy"
+        And I release the application
+      Given a new Escape plan called "my-release"
+        And it has "my-scoped-input-dependency-latest" as a dependency 
+       When I build the application
+       Then "_/my-release" version "0.0.0" is present in the build state
+
+    Scenario: Dependency input variable scope is honoured - default is used
+      Given a new Escape plan called "my-scoped-input-dependency"
+        And input variable "input_variable" with default "test" in scope "deploy"
+        And I release the application
+      Given a new Escape plan called "my-release"
+        And it has "my-scoped-input-dependency-latest" as a dependency 
+        And input variable "input_variable" with default "alright" in scope "build"
+       When I build the application
+       Then "_/my-release" version "0.0.0" is present in the build state
+        And its calculated input "input_variable" is set to "alright"
+
     Scenario: Using Dependency Outputs as Inputs
        Given a new Escape plan called "output"
          And output variable "output_variable" with default "test"

@@ -19,7 +19,7 @@ Field | Type | Description
 |||Examples: 
 |||* Fully qualified: `name: my-project/my-package` 
 |||* Default project: `name: my-package` 
-|<a name='version'></a>version|`string`|The version is a required field. Escape uses semantic versioning to version packages.  Either specify the full version or use the '@' symbol to let Escape pick the next version at build time. See [here](/docs/versioning/) for more versioning approaches. 
+|<a name='version'></a>version|`string`|The version is a required field. Escape uses semantic versioning to version packages.  Either specify the full version or use the '@' symbol to let Escape pick the next version at build time. See [here](/docs/guides/versioning/) for more versioning approaches. 
 |||Format: `/[0-9]+(\.[0-9]+)*(\.@)?/` 
 |||Examples: 
 |||* Build version 1.5: `version: 1.5` 
@@ -53,7 +53,7 @@ Field | Type | Description
 |<a name='destroy'></a>destroy|`string`|Destroy script. 
 |<a name='pre_destroy'></a>pre_destroy|`string`|Pre-destroy script. 
 |<a name='post_destroy'></a>post_destroy|`string`|Post-destroy script. 
-|<a name='errands'></a>errands|[Errands](/docs/reference/errands/)|Errands are scripts that can be run against the deployment of this release. The scripts receive the deployment's inputs and outputs as environment variables. 
+|<a name='errands'></a>errands|{string:[Errands](/docs/reference/errands/)}|Errands are scripts that can be run against the deployment of this release. The scripts receive the deployment's inputs and outputs as environment variables. 
 |<a name='templates'></a>templates|[Templates](/docs/reference/templates/)|Templates. 
 |<a name='build_templates'></a>build_templates|[Templates](/docs/reference/templates/)|Same as `templates`, but all the templates are scoped to the build stage (ie. templates won't be rendered at deploy time). 
 |<a name='deploy_templates'></a>deploy_templates|[Templates](/docs/reference/templates/)|Same as `templates`, but all the templates are scoped to the deploy stage (ie. templates won't be rendered at deploy time). 
