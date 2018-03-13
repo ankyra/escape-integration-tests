@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/ankyra/escape/util"
+	"github.com/ankyra/escape/util/logger/loggers"
 )
 
 var EscapePath string
@@ -39,7 +40,7 @@ func run(cmd []string, errorDebug bool) error {
 		command = append(command, c)
 	}
 
-	stdout, err := rec.Record(command, env, util.NewLoggerDummy())
+	stdout, err := rec.Record(command, env, loggers.NewLoggerDummy())
 	CapturedStdout = stdout
 	if errorDebug && err != nil {
 		fmt.Println(CapturedStdout)

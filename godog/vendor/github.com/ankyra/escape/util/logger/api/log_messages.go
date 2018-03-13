@@ -14,50 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package util
+package api
 
-const (
-	DEBUG   = iota
-	INFO    = iota
-	SUCCESS = iota
-	WARN    = iota
-	ERROR   = iota
-)
-
-func stringToLogLevel(logLevel string) LogLevel {
-	if logLevel == "debug" {
-		return DEBUG
-	} else if logLevel == "warn" {
-		return WARN
-	} else if logLevel == "success" {
-		return SUCCESS
-	} else if logLevel == "error" {
-		return ERROR
-	}
-
-	return INFO
-}
-
-const EscapeLogo = `
-  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  @                                 @
-  @ @@@@@@                .@.       @
-  @ @@@@@@                @@@       @
-  @ @@@@@@                @@@.      @
-  @ @@@@@@    +             @@@@;   @
-  @ @@@@@@   +@            +@@@,@   @
-  @ @@@@@@  +@@@@@@@@@@@@  +@@@ :   @
-  @ @@@@@@ +@@@@@@@@@@@@@.@@@#@@    @
-  @ @@@@@@  +@@@@@@@@@@@@    .@@    @
-  @ @@@@@@   +@             #@@@    @
-  @ @@@@@@    +             @# @    @ 
-  @ @@@@@@                  @, @@@. @
-  @ @@@@@@                  @       @
-  @ @@@@@@                  @       @
-  @                                 @
-  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@`
-
-var logMessages = map[string]map[string]string{
+var LogMessages = map[string]map[string]string{
 	"package.finished": map[string]string{
 		"msg":   "Packaged {{ .release }} at {{ .path }}",
 		"level": "success",
@@ -239,8 +198,36 @@ var logMessages = map[string]map[string]string{
 		"msg":   "Converging deployment of {{ .release }} for deployment {{ .deployment }}",
 		"level": "info",
 	},
+	"converge.test_pending": map[string]string{
+		"msg":   "Performing user's request to run smoke tests from {{ .release }} against deployment {{ .deployment }}.",
+		"level": "info",
+	},
+	"converge.deploy_retry": map[string]string{
+		"msg":   "Retrying deployment of {{ .release }} in deployment {{ .deployment }}.",
+		"level": "info",
+	},
+	"converge.test_retry": map[string]string{
+		"msg":   "Retrying smoke tests from {{ .release }} against deployment {{ .deployment }}.",
+		"level": "info",
+	},
+	"converge.destroy_pending": map[string]string{
+		"msg":   "Performing user's request to run the destroy steps from {{ .release }} on deployment {{ .deployment }}",
+		"level": "info",
+	},
+	"converge.destroy_retry": map[string]string{
+		"msg":   "Retrying destroy steps from {{ .release }} against deployment {{ .deployment }}.",
+		"level": "info",
+	},
+	"converge.mark_retry": map[string]string{
+		"msg":   "Marking deployment {{ .deployment }} to retry in {{ .backoff }}.",
+		"level": "info",
+	},
 	"converge.skip_ok": map[string]string{
 		"msg":   "Skipping deployment {{ .deployment }}; already deployed (use --refresh to redeploy)",
+		"level": "info",
+	},
+	"converge.skip_retry_later": map[string]string{
+		"msg":   "Skipping deployment {{ .deployment }}; will be retried in {{ .retriedIn }}.",
 		"level": "info",
 	},
 	"deploy.deploy_dependency": map[string]string{

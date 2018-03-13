@@ -4,3 +4,4 @@ escape_state.json
 *.swp
 godog/\.*
 godog/vendor/github.com/ankyra/escape/escape
+godog/errand.sh

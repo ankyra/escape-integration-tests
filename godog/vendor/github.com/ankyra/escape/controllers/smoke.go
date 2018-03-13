@@ -17,6 +17,9 @@ limitations under the License.
 package controllers
 
 import (
+	"os"
+
+	"github.com/ankyra/escape-core/state"
 	. "github.com/ankyra/escape/model/interfaces"
 	"github.com/ankyra/escape/model/runners"
 	"github.com/ankyra/escape/model/runners/deploy"
@@ -30,7 +33,7 @@ func (SmokeController) Smoke(context Context) error {
 	context.Log("smoke.start", nil)
 	runnerContext, err := runners.NewRunnerContext(context, "build")
 	if err != nil {
-		return err
+		return MarkDeploymentFailed(context, err, state.TestFailure)
 	}
 	if err := deploy.NewSmokeRunner().Run(runnerContext); err != nil {
 		return err
@@ -39,4 +42,21 @@ func (SmokeController) Smoke(context Context) error {
 	context.PopLogRelease()
 	context.PopLogSection()
 	return nil
+}
+
+func (s SmokeController) FetchAndSmoke(context Context, releaseId string) error {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return MarkDeploymentFailed(context, err, state.TestFailure)
+	}
+	fetcher := FetchController{}
+	if err := fetcher.ResolveFetchAndLoad(context, releaseId); err != nil {
+		os.Chdir(currentDir)
+		return MarkDeploymentFailed(context, err, state.TestFailure)
+	}
+	if err := s.Smoke(context); err != nil {
+		os.Chdir(currentDir)
+		return err
+	}
+	return os.Chdir(currentDir)
 }

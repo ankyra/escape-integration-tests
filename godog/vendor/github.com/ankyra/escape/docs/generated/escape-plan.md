@@ -4,7 +4,7 @@ title: "The Escape Plan"
 slug: escape-plan
 type: "docs"
 toc: true
-wip: true
+wip: false
 ---
 
 Everything starts with a plan. An Escape plan.
@@ -27,6 +27,7 @@ Field | Type | Description
 |||* Build the next patch release in the 1.1.* series: `version: 1.1.@` 
 |<a name='description'></a>description|`string`|A description for this package. Only used for presentation purposes. 
 |<a name='logo'></a>logo|`string`|A path to an image. Only used for presentation purposes. 
+|<a name='license'></a>license|`string`|The license. For example `Apache Software License`, `BSD License`, `GPLv3`, etc. Currently no input validation is performed on this field. 
 |<a name='metadata'></a>metadata|`{string:string}`|Metadata key value pairs. 
 |||[Escape Script](/docs/scripting-language/) can be used to programmatically set values using the [default context](/docs/scripting-language/#context). 
 |||Example: 

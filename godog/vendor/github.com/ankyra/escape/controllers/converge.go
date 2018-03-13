@@ -18,10 +18,14 @@ package controllers
 
 import (
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/ankyra/escape-core/state"
 	. "github.com/ankyra/escape/model/interfaces"
 )
+
+const BackoffStart = 1
 
 type ConvergeController struct{}
 
@@ -42,22 +46,113 @@ func ConvergeDeployment(context Context, depl *state.DeploymentState, refresh bo
 	if depl.Release == "" {
 		return fmt.Errorf("No release set for deployment '%s'", depl.Name)
 	}
-	stage := depl.GetStageOrCreateNew("deploy")
+	stage := depl.GetStageOrCreateNew(state.DeployStage)
 	if stage.Version == "" {
 		return fmt.Errorf("No 'version' set for deployment of '%s' in deployment '%s'",
 			depl.Release, depl.Name)
 	}
-	if !refresh && stage.Status.Code == state.OK {
+	releaseId := depl.Release + "-v" + stage.Version
+	status := stage.Status
+	context.SetRootDeploymentName(depl.Name)
+
+	if status.Code == state.TestPending {
+		return convergeSmoke(context, depl, releaseId, "converge.test_pending")
+	}
+	if status.Code == state.DestroyPending {
+		return convergeDestroy(context, depl, releaseId, "converge.destroy_pending")
+	}
+	if status.IsError() {
+		return handleExponentialBackoff(context, depl, status)
+	}
+	if !refresh && status.Code == state.OK {
 		context.Log("converge.skip_ok", map[string]string{
 			"deployment": depl.Name,
-			"release":    depl.Release + "-v" + stage.Version,
+			"release":    releaseId,
 		})
 		return nil
 	}
-	context.Log("converge", map[string]string{
+	return convergeDeploy(context, depl, releaseId, "converge")
+}
+
+func handleExponentialBackoff(context Context, depl *state.DeploymentState, status *state.Status) error {
+	now := time.Now()
+
+	// The action has not been retried so set an initial retry time and save
+	// the new status.
+	if status.TryAgainAt.IsZero() {
+		backOff := time.Duration(BackoffStart) * time.Second
+		status.TryAgainAt = now.Add(backOff)
+		context.Log("converge.mark_retry", map[string]string{
+			"deployment": depl.Name,
+			"backoff":    backOff.String(),
+		})
+		return depl.UpdateStatus(state.DeployStage, status)
+	}
+
+	// Retry action
+	if status.TryAgainAt.Before(now) {
+		return retryAction(context, depl)
+	}
+
+	// The action will be retried in a later round. Do nothing.
+	context.Log("converge.skip_retry_later", map[string]string{
 		"deployment": depl.Name,
-		"release":    depl.Release + "-v" + stage.Version,
+		"retriedIn":  status.TryAgainAt.Sub(now).String(),
 	})
-	context.SetRootDeploymentName(depl.Name)
-	return DeployController{}.FetchAndDeploy(context, depl.Release+"-v"+stage.Version, nil, nil)
+	return nil
+}
+
+func retryAction(context Context, depl *state.DeploymentState) error {
+	stage := depl.GetStageOrCreateNew(state.DeployStage)
+	status := stage.Status
+	releaseId := depl.Release + "-v" + stage.Version
+	var err error
+	if status.Code == state.Failure {
+		err = convergeDeploy(context, depl, releaseId, "converge.deploy_retry")
+	} else if status.Code == state.TestFailure {
+		err = convergeSmoke(context, depl, releaseId, "converge.test_retry")
+	} else if status.Code == state.DestroyFailure {
+		err = convergeDestroy(context, depl, releaseId, "converge.destroy_retry")
+	} else {
+		return fmt.Errorf("Unknown error status '%s'. This is a bug in Esape.", status.Code)
+	}
+	if err == nil {
+		return nil
+	}
+	now := time.Now()
+	status.Tried += 1
+	backOff := time.Duration(BackoffStart*math.Exp(float64(status.Tried))) * time.Second
+	status.TryAgainAt = now.Add(backOff)
+	context.Log("converge.mark_retry", map[string]string{
+		"deployment": depl.Name,
+		"backoff":    backOff.String(),
+	})
+	if err2 := depl.UpdateStatus(state.DeployStage, status); err2 != nil {
+		return fmt.Errorf("Couldn't update status '%s'. Trying to set failure status, because: %s", err2.Error(), err.Error())
+	}
+	return err
+}
+
+func convergeSmoke(context Context, depl *state.DeploymentState, releaseId, logKey string) error {
+	context.Log(logKey, map[string]string{
+		"deployment": depl.Name,
+		"release":    releaseId,
+	})
+	return SmokeController{}.FetchAndSmoke(context, releaseId)
+}
+
+func convergeDestroy(context Context, depl *state.DeploymentState, releaseId, logKey string) error {
+	context.Log(logKey, map[string]string{
+		"deployment": depl.Name,
+		"release":    releaseId,
+	})
+	return DestroyController{}.FetchAndDestroy(context, releaseId, false, true)
+}
+
+func convergeDeploy(context Context, depl *state.DeploymentState, releaseId, logKey string) error {
+	context.Log(logKey, map[string]string{
+		"deployment": depl.Name,
+		"release":    releaseId,
+	})
+	return DeployController{}.FetchAndDeploy(context, releaseId, nil, nil)
 }

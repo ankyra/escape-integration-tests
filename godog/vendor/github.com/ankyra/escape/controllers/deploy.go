@@ -19,9 +19,8 @@ package controllers
 import (
 	"os"
 
-	"github.com/ankyra/escape-core"
+	"github.com/ankyra/escape-core/state"
 	. "github.com/ankyra/escape/model/interfaces"
-	"github.com/ankyra/escape/model/paths"
 	"github.com/ankyra/escape/model/runners"
 	"github.com/ankyra/escape/model/runners/deploy"
 )
@@ -59,11 +58,11 @@ func (d DeployController) Deploy(context Context, extraVars, extraProviders map[
 	context.PushLogSection("Deploy")
 	context.Log("deploy.start", nil)
 	if err := SaveExtraInputsAndProvidersInDeploymentState(context, "deploy", extraVars, extraProviders); err != nil {
-		return err
+		return MarkDeploymentFailed(context, err, state.Failure)
 	}
 	runnerContext, err := runners.NewRunnerContext(context, "deploy")
 	if err != nil {
-		return err
+		return MarkDeploymentFailed(context, err, state.Failure)
 	}
 	if err := deploy.NewDeployRunner().Run(runnerContext); err != nil {
 		return err
@@ -78,36 +77,27 @@ func (d DeployController) Deploy(context Context, extraVars, extraProviders map[
 }
 
 func (d DeployController) FetchAndDeploy(context Context, releaseId string, extraVars, extraProviders map[string]string) error {
-	// TODO cd into temp directory
-	parsed := core.NewDependencyConfig(releaseId)
-	if err := parsed.EnsureConfigIsParsed(); err != nil {
-		return err
-	}
-	if parsed.NeedsResolving() {
-		metadata, err := context.QueryReleaseMetadata(parsed)
-		if err != nil {
-			return err
-		}
-		parsed.Version = metadata.Version
-		metadata.Project = parsed.Project // inventory needs to be updated to latest core
-		releaseId = metadata.GetQualifiedReleaseId()
-	}
-	fetcher := FetchController{}
-	if err := fetcher.Fetch(context, []string{releaseId}); err != nil {
-		return err
-	}
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return err
+		return MarkDeploymentFailed(context, err, state.Failure)
 	}
-	root := paths.NewPath().UnpackedDepCfgDirectory(parsed)
-	err = os.Chdir(root)
-	if err := context.LoadReleaseJson(); err != nil {
-		return err
+	fetcher := FetchController{}
+	if err := fetcher.ResolveFetchAndLoad(context, releaseId); err != nil {
+		os.Chdir(currentDir)
+		return MarkDeploymentFailed(context, err, state.Failure)
 	}
 	if err := d.Deploy(context, extraVars, extraProviders); err != nil {
 		os.Chdir(currentDir)
 		return err
 	}
 	return os.Chdir(currentDir)
+}
+
+func MarkDeploymentFailed(context Context, err error, errorCode state.StatusCode) error {
+	envState := context.GetEnvironmentState()
+	deplState, err2 := envState.GetOrCreateDeploymentState(context.GetRootDeploymentName())
+	if err2 != nil {
+		return err2
+	}
+	return deplState.SetFailureStatus(state.DeployStage, err, errorCode)
 }

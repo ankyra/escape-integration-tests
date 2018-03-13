@@ -18,18 +18,21 @@ package util
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/ankyra/escape/util/logger/api"
 )
 
 type ProcessRecorder interface {
 	SetWorkingDirectory(string)
-	Record(cmd []string, env []string, log Logger) (string, error)
-	Run(cmd []string, env []string, log Logger) error
+	Record(cmd []string, env []string, log api.Logger) (string, error)
+	Run(cmd []string, env []string, log api.Logger) error
 }
 
 type processRecorder struct {
@@ -49,7 +52,16 @@ func getExtraPathDir() string {
 	return filepath.Join(GetAppConfigDir(runtime.GOOS, currentUser.HomeDir), ".bin")
 }
 
-func (p *processRecorder) Record(cmd []string, env []string, log Logger) (string, error) {
+func pipeReader(pipe io.ReadCloser, channel chan string) {
+	scanner := bufio.NewScanner(pipe)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		channel <- line
+	}
+	close(channel)
+}
+
+func (p *processRecorder) Record(cmd []string, env []string, log api.Logger) (string, error) {
 	extraPath := getExtraPathDir()
 	MkdirRecursively(extraPath)
 	newEnv := []string{}
@@ -65,34 +77,23 @@ func (p *processRecorder) Record(cmd []string, env []string, log Logger) (string
 	proc.Dir = p.WorkingDirectory
 	proc.Env = newEnv
 	bufferSize := 2
-	quitChannel := make(chan int)
 	stdoutChannel := make(chan string, bufferSize)
 	stderrChannel := make(chan string, bufferSize)
+
 	result := []string{}
+
 	stdout, err := proc.StdoutPipe()
 	if err != nil {
 		return "", RecordError(cmd, err)
 	}
+
 	stderr, err := proc.StderrPipe()
 	if err != nil {
 		return "", RecordError(cmd, err)
 	}
-	scanner := bufio.NewScanner(stdout)
-	go func(resultChannel chan string) {
-		for scanner.Scan() {
-			line := strings.TrimSpace(scanner.Text())
-			resultChannel <- line
-		}
-		close(resultChannel)
-	}(stdoutChannel)
-	errScanner := bufio.NewScanner(stderr)
-	go func(resultChannel chan string) {
-		for errScanner.Scan() {
-			line := strings.TrimSpace(errScanner.Text())
-			resultChannel <- line
-		}
-		close(resultChannel)
-	}(stderrChannel)
+
+	go pipeReader(stdout, stdoutChannel)
+	go pipeReader(stderr, stderrChannel)
 
 	logLine := func(line string) {
 		if line == "" {
@@ -105,44 +106,49 @@ func (p *processRecorder) Record(cmd []string, env []string, log Logger) (string
 		})
 	}
 
-	go func(stdoutChannel, stderrChannel chan string, quit chan int) {
+	done := make(chan int, 1)
+	go func() {
+		ch1 := stdoutChannel
+		ch2 := stderrChannel
 		for {
 			select {
-			case line := <-stdoutChannel:
-				logLine(line)
-			case line := <-stderrChannel:
-				logLine(line)
-			case <-quit:
+			case line, ok := <-ch1:
+				if !ok {
+					ch1 = nil
+				} else {
+					logLine(line)
+				}
+			case line, ok := <-ch2:
+				if !ok {
+					ch2 = nil
+				} else {
+					logLine(line)
+				}
+			}
+			if ch1 == nil && ch2 == nil {
+				done <- 1
 				return
 			}
 		}
-	}(stdoutChannel, stderrChannel, quitChannel)
+	}()
+
+	var returnErr error
 
 	if err := proc.Start(); err != nil {
-		quitChannel <- 0
-		drainChannels(stdoutChannel, stderrChannel, logLine)
-		return strings.Join(result, "\n"), RecordError(cmd, err)
+		returnErr = err
 	}
 	if err := proc.Wait(); err != nil {
-		quitChannel <- 0
-		drainChannels(stdoutChannel, stderrChannel, logLine)
-		return strings.Join(result, "\n"), RecordError(cmd, err)
+		returnErr = err
 	}
-	quitChannel <- 0
-	drainChannels(stdoutChannel, stderrChannel, logLine)
-	return strings.Join(result, "\n"), nil
+	<-done
+	lines := strings.Join(result, "\n")
+	if returnErr != nil {
+		return lines, RecordError(cmd, returnErr)
+	}
+	return lines, nil
 }
 
-func drainChannels(stdoutChannel, stderrChannel chan string, logLine func(string)) {
-	for line := range stdoutChannel {
-		logLine(line)
-	}
-	for line := range stderrChannel {
-		logLine(line)
-	}
-}
-
-func (p *processRecorder) Run(cmd []string, env []string, log Logger) error {
+func (p *processRecorder) Run(cmd []string, env []string, log api.Logger) error {
 	_, err := p.Record(cmd, env, log)
 	return err
 }
