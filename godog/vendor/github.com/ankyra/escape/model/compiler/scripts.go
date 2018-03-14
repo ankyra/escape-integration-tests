@@ -16,30 +16,75 @@ limitations under the License.
 
 package compiler
 
+import (
+	"fmt"
+	"strings"
+
+	core "github.com/ankyra/escape-core"
+	"github.com/ankyra/escape/util"
+)
+
 func compileScripts(ctx *CompilerContext) error {
 	plan := ctx.Plan
-	metadata := ctx.Metadata
-	paths := []string{
-		plan.Build, plan.Deploy, plan.Destroy,
-		plan.PreBuild, plan.PreDeploy, plan.PreDestroy,
-		plan.PostBuild, plan.PostDeploy, plan.PostDestroy,
-		plan.Test, plan.Smoke,
+	cases := [][]interface{}{
+		[]interface{}{"build", plan.Build},
+		[]interface{}{"deploy", plan.Deploy},
+		[]interface{}{"destroy", plan.Destroy},
+		[]interface{}{"pre_build", plan.PreBuild},
+		[]interface{}{"pre_deploy", plan.PreDeploy},
+		[]interface{}{"pre_destroy", plan.PreDestroy},
+		[]interface{}{"post_build", plan.PostBuild},
+		[]interface{}{"post_deploy", plan.PostDeploy},
+		[]interface{}{"post_destroy", plan.PostDestroy},
+		[]interface{}{"test", plan.Test},
+		[]interface{}{"smoke", plan.Smoke},
 	}
-	for _, path := range paths {
-		if err := ctx.AddFileDigest(path); err != nil {
-			return err
+	for _, script := range cases {
+		if err := setStage(ctx, script[0].(string), script[1]); err != nil {
+			return fmt.Errorf("In field %s: %s", script[0], err.Error())
 		}
 	}
-	metadata.SetStage("build", plan.Build)
-	metadata.SetStage("deploy", plan.Deploy)
-	metadata.SetStage("destroy", plan.Destroy)
-	metadata.SetStage("pre_build", plan.PreBuild)
-	metadata.SetStage("pre_deploy", plan.PreDeploy)
-	metadata.SetStage("pre_destroy", plan.PreDestroy)
-	metadata.SetStage("post_build", plan.PostBuild)
-	metadata.SetStage("post_deploy", plan.PostDeploy)
-	metadata.SetStage("post_destroy", plan.PostDestroy)
-	metadata.SetStage("test", plan.Test)
-	metadata.SetStage("smoke", plan.Smoke)
+	return nil
+}
+
+func setStage(ctx *CompilerContext, field string, script interface{}) error {
+	var stage *core.ExecStage
+	metadata := ctx.Metadata
+
+	if script == nil {
+		return nil
+	}
+
+	switch script.(type) {
+	case string:
+		str := script.(string)
+		if str == "" {
+			return nil
+		}
+		parts := strings.Fields(str)
+		firstArg := parts[0]
+		if util.PathExists(firstArg) {
+			ctx.AddFileDigest(firstArg)
+			stage = core.NewExecStageForRelativeScript(str)
+		} else if strings.HasPrefix(firstArg, ".") {
+			return fmt.Errorf("The relative path to script '%s' doesn't exist (in %s)", firstArg, str)
+		} else {
+			stage = &core.ExecStage{
+				Cmd:  firstArg,
+				Args: parts[1:],
+			}
+		}
+	case map[interface{}]interface{}:
+		returnedStage, err := core.NewExecStageFromDict(script.(map[interface{}]interface{}))
+		if err != nil {
+			return err
+		}
+		stage = returnedStage
+	default:
+		return fmt.Errorf("Expecting dict or string type. Got '%T'", script)
+	}
+	if stage == nil {
+	}
+	metadata.SetExecStage(field, stage)
 	return nil
 }

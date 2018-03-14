@@ -17,6 +17,8 @@ limitations under the License.
 package compiler
 
 import (
+	"strings"
+
 	"github.com/ankyra/escape-core"
 	"github.com/ankyra/escape/model/paths"
 )
@@ -60,7 +62,17 @@ func compileExtensions(ctx *CompilerContext) error {
 			ctx.Metadata.Templates = append(ctx.Metadata.Templates, tpl)
 		}
 		for name, stage := range metadata.Stages {
-			ctx.Metadata.SetStage(name, extensionPath(metadata, stage.Script))
+			if stage.IsEmpty() {
+				continue
+			}
+			if stage.RelativeScript != "" {
+				fields := strings.Fields(stage.RelativeScript)
+				script := extensionPath(metadata, fields[0])
+				newScript := []string{script}
+				newScript = append(newScript, fields[1:]...)
+				stage = core.NewExecStageForRelativeScript(strings.Join(newScript, " "))
+			}
+			ctx.Metadata.SetExecStage(name, stage)
 		}
 		for _, d := range metadata.Depends {
 			found := false

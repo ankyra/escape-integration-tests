@@ -18,6 +18,7 @@ package escape
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ankyra/escape/util"
 	"github.com/ankyra/escape/util/logger/loggers"
@@ -28,9 +29,8 @@ var CapturedStdout string
 
 func run(cmd []string, errorDebug bool) error {
 	rec := util.NewProcessRecorder()
-	env := []string{
-		"ESCAPE_API_SERVER=http://localhost:7777",
-	}
+	env := os.Environ()
+	env = append(env, "ESCAPE_API_SERVER=http://localhost:7777")
 	binary := EscapePath
 	if !util.PathExists(binary) {
 		binary = "escape"
