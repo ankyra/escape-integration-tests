@@ -79,12 +79,12 @@ Feature: escape state
         When I run "escape state show-deployment --help"
         Then I should see "Usage" in the output
 
-      Scenario: Shows deployment pending if not deployed
+      Scenario: Shows deployment empty if not deployed
         Given a new Escape plan called "release"
           And I release the application
         When I run "escape state show-deployment" which fails
         Then I should see "_/release" in the output
-          And I should see "pending" in the output
+          And I should see "empty" in the output
 
       Scenario: Shows deployment pending if deployed
         Given a new Escape plan called "release"
