@@ -26,6 +26,6 @@ jobs:
             curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/docker-escape-inventory/tree/master?circle-token=${CIRCLE_DOCKER_INVENTORY_TOKEN} && \
             curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/escape-docs/tree/master?circle-token=${CIRCLE_ESCAPE_DOCS_TOKEN} && \
             curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/escape-kit-integration-tests/tree/master?circle-token=${ESCAPE_KIT_INTEGRATION_TESTS_TRIGGER} && \
-            curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/escape-controller/tree/master?circle-token=${ESCAPE_CONTROLLER_TOKEN}
+            curl -f -X POST https://circleci.com/api/v1.1/project/github/ankyra/escape-worker/tree/master?circle-token=${ESCAPE_CONTROLLER_TOKEN}
           fi
 
