@@ -343,3 +343,12 @@ Feature: Running the build phase
        Then "_/parent-release" version "0.0.0" is present in the build state
         And "_/parent-release:p1" is the provider for "provider" in "_/parent-release:c1"
         And "_/parent-release:p2" is the provider for "provider" in "_/parent-release:c2"
+
+    Scenario: Build twice creates PREVIOUS_OUTPUTS environment varaible
+       Given a new Escape plan called "output"
+         And output variable "output_variable" with default "previous_test_variable_value"
+         And it has "echo $INPUT_PREVIOUS_OUTPUT_output_variable" as an inline build script
+        When I build the application
+         And I should not see "previous_test_variable_value" in the output
+        Then I build the application again
+         And I should see "previous_test_variable_value" in the output

@@ -56,6 +56,8 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^its calculated input "([^"]*)" is not set$`, itsCalculatedInputIsNotSet)
 	s.Step(`^its calculated output "([^"]*)" is set to "([^"]*)"$`, itsCalculatedOutputIsSetTo)
 
+	s.Step(`^it has "([^"]*)" as an inline build script$`, setInlineBuild)
+
 	s.Step(`^I release the application$`, iReleaseTheApplication)
 	s.Step(`^it has "([^"]*)" as a dependency$`, itHasAsADependency)
 	s.Step(`^it has "([^"]*)" as a dependency mapping consumer "([^"]*)" to "([^"]*)"$`, itHasAsADependencyMappingConsumerTo)
@@ -78,6 +80,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^errand "([^"]*)" with script "([^"]*)" with description "([^"]*)"$`, errandWithScriptAndDescription)
 	s.Step(`^I list the errands in the deployment "([^"]*)"$`, iListTheErrandsInTheDeployment)
 	s.Step(`^I should see "([^"]*)" in the output$`, iShouldSeeInTheOutput)
+	s.Step(`^I should not see "([^"]*)" in the output$`, iShouldNotSeeInTheOutput)
 	s.Step(`^I list the local errands$`, iListTheLocalErrands)
 	s.Step(`^I run the errand "([^"]*)" in "([^"]*)"$`, iRunTheErrandIn)
 	s.Step(`^I delete the file "([^"]*)"$`, iDeleteTheFile)
@@ -338,6 +341,26 @@ func itsCalculatedOutputIsSetTo(key, value string) error {
 	return nil
 }
 
+func setInlineBuild(script string) error {
+	plan := map[string]interface{}{}
+	bytes, err := ioutil.ReadFile("escape.yml")
+	if err != nil {
+		return err
+	}
+	if err := yaml.Unmarshal(bytes, &plan); err != nil {
+		return err
+	}
+	if plan["build"] == nil {
+		plan["build"] = map[string]interface{}{}
+	}
+	plan["build"].(map[string]interface{})["inline"] = script
+	bytes, err = yaml.Marshal(plan)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile("escape.yml", bytes, 0644)
+}
+
 func iListTheErrandsInTheDeployment(deploymentName string) error {
 	return escape.Run([]string{"errands", "list", "-d", deploymentName})
 }
@@ -352,6 +375,13 @@ func iRunTheErrandIn(errand, deployment string) error {
 func iShouldSeeInTheOutput(value string) error {
 	if strings.Index(escape.CapturedStdout, value) == -1 {
 		return fmt.Errorf("'%s' was not found in the output:\n%s", value, escape.CapturedStdout)
+	}
+	return nil
+}
+
+func iShouldNotSeeInTheOutput(value string) error {
+	if strings.Index(escape.CapturedStdout, value) != -1 {
+		return fmt.Errorf("'%s' was found in the output:\n%s", value, escape.CapturedStdout)
 	}
 	return nil
 }
