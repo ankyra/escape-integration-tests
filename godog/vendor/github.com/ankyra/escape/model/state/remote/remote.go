@@ -32,7 +32,7 @@ type remoteStateProvider struct {
 
 func NewRemoteStateProvider(apiServer, escapeToken string, insecureSkipVerify bool) *remoteStateProvider {
 	return &remoteStateProvider{
-		client:    remote.NewRemoteClient(escapeToken, insecureSkipVerify),
+		client:    remote.NewRemoteClient(escapeToken, "", "", insecureSkipVerify),
 		endpoints: remote.NewServerEndpoints(apiServer),
 	}
 }
@@ -82,6 +82,24 @@ func (r *remoteStateProvider) Save(depl *DeploymentState) error {
 			return fmt.Errorf("Couldn't update deployment state (%s).", resp.Status)
 		}
 		return fmt.Errorf("Couldn't update deployment state (%s): %s.", resp.Status, bytes)
+	}
+	return nil
+}
+
+func (r *remoteStateProvider) DeleteDeployment(project, env, depl string) error {
+	url := r.endpoints.DeleteDeploymentState(project, env, depl)
+	resp, err := r.client.DELETE_with_authentication(url)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == 401 {
+		return fmt.Errorf("Unauthorized")
+	} else if resp.StatusCode != 200 {
+		bytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil || len(bytes) == 0 {
+			return fmt.Errorf("Couldn't delete deployment state (%s).", resp.Status)
+		}
+		return fmt.Errorf("Couldn't delete deployment state (%s): %s.", resp.Status, bytes)
 	}
 	return nil
 }

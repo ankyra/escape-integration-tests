@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	core "github.com/ankyra/escape-core"
 	"github.com/ankyra/escape-core/state"
@@ -163,7 +164,8 @@ func (b *ScriptStep) initScript(ctx *RunnerContext) error {
 	if b.Script.RelativeScript == "" {
 		return nil
 	}
-	script := b.Script.RelativeScript
+	fields := strings.Fields(b.Script.RelativeScript)
+	script := fields[0]
 	if !util.PathExists(script) {
 		return fmt.Errorf("Referenced %s script '%s' does not exist", b.Step, script)
 	}
@@ -231,7 +233,15 @@ func (b *ScriptStep) getCmd(ctx *RunnerContext) ([]string, error) {
 			return nil, err
 		}
 	}
-	return b.Script.GetAsCommand(), nil
+	env, err := ctx.GetScriptEnvironment(b.Stage)
+	if err != nil {
+		return nil, err
+	}
+	script, err := b.Script.Eval(env)
+	if err != nil {
+		return nil, err
+	}
+	return script.GetAsCommand()
 }
 
 func (b *ScriptStep) runScript(ctx *RunnerContext) error {

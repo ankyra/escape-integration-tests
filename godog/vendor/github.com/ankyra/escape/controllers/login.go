@@ -52,6 +52,7 @@ func (LoginController) Login(context Context, url, authMethodRequested, username
 
 	if authMethods == nil {
 		fmt.Printf("Authentication not required.\n\nSuccessfully logged in to %s\n", url)
+		context.GetEscapeConfig().GetCurrentProfile().SetBasicAuthCredentials("", "")
 		context.GetEscapeConfig().GetCurrentProfile().SetAuthToken("")
 		context.GetEscapeConfig().GetCurrentProfile().SetApiServer(url)
 		return context.GetEscapeConfig().Save()
@@ -79,12 +80,17 @@ func (LoginController) Login(context Context, url, authMethodRequested, username
 		authMethod = authUserSelection(reader, authMethods)
 	}
 	if authMethod.Type == "oauth" {
+		fmt.Println("Logging in using OAuth2 provider.")
 		openBrowser(authMethod.URL)
 		return getEscapeTokenWithRedeemToken(context, url, authMethod.RedeemToken, authMethod.RedeemURL)
 	} else if authMethod.Type == "secret-token" {
+		fmt.Println("Logging in using username and password combination.")
 		return secretTokenAuth(reader, context, url, authMethod.URL, username, password)
+	} else if authMethod.Type == "basic-auth" {
+		fmt.Println("Logging in using Basic Authentication against " + authMethod.URL)
+		return basicAuth(reader, context, url, authMethod.URL, username, password)
 	} else {
-		return fmt.Errorf("Unknown auth method.")
+		return fmt.Errorf("The authentication method '%s' is not supported by this client.", authMethod.Type)
 	}
 	return nil
 }
@@ -97,7 +103,12 @@ func authUserSelection(reader *bufio.Reader, authMethods map[string]*types.AuthM
 		sortedAuthMethods = append(sortedAuthMethods, authMethods[key])
 	}
 
-	fmt.Println("Available authentication methods:\n")
+	if len(sortedAuthMethods) == 1 {
+		fmt.Printf("Using only authentication method available '%s'\n", sortedKeys[0])
+		return sortedAuthMethods[0]
+	}
+
+	fmt.Printf("Available authentication methods:\n\n")
 	i := 1
 	methods := []*types.AuthMethod{}
 	for key, authMethod := range sortedAuthMethods {
@@ -137,10 +148,28 @@ func secretTokenAuth(reader *bufio.Reader, context Context, url, loginUrl, usern
 	if err != nil {
 		return err
 	}
+	context.GetEscapeConfig().GetCurrentProfile().SetBasicAuthCredentials("", "")
 	context.GetEscapeConfig().GetCurrentProfile().SetAuthToken(authToken)
 	context.GetEscapeConfig().GetCurrentProfile().SetApiServer(url)
 	context.GetEscapeConfig().Save()
 	fmt.Printf("\nSuccessfully retrieved and stored auth token %s\n", authToken)
+	return nil
+}
+
+func basicAuth(reader *bufio.Reader, context Context, url, loginUrl, username, password string) error {
+	err := credentialsUserInput(reader, &username, &password)
+	if err != nil {
+		return err
+	}
+	if err := context.GetInventory().LoginWithBasicAuth(loginUrl, username, password); err != nil {
+		return err
+	}
+	context.GetEscapeConfig().GetCurrentProfile().SetBasicAuthCredentials(username, password)
+	context.GetEscapeConfig().GetCurrentProfile().SetApiServer(url)
+	if err := context.GetEscapeConfig().Save(); err != nil {
+		return err
+	}
+	fmt.Printf("\nSuccessfully logged in using basic authentication. Credentials were stored in the current configuration profile (see `escape config profile`)\n")
 	return nil
 }
 
@@ -209,6 +238,7 @@ func getEscapeTokenWithRedeemToken(context Context, url, redeemToken, redeemURL 
 			if err != nil {
 				return fmt.Errorf("Couldn't read response from server '%s': %s", redeemURL, resp.Status)
 			}
+			context.GetEscapeConfig().GetCurrentProfile().SetBasicAuthCredentials("", "")
 			context.GetEscapeConfig().GetCurrentProfile().SetAuthToken(string(authToken))
 			context.GetEscapeConfig().GetCurrentProfile().SetApiServer(url)
 			context.GetEscapeConfig().Save()
@@ -216,7 +246,7 @@ func getEscapeTokenWithRedeemToken(context Context, url, redeemToken, redeemURL 
 			return nil
 		}
 		if resp.StatusCode != 404 {
-			return fmt.Errorf("Couldn't retrieve token from server. Got status code %d", resp.Status)
+			return fmt.Errorf("Couldn't retrieve token from server. Got status code %d", resp.StatusCode)
 		}
 		time.Sleep(timeOut * time.Second)
 		currentTry++

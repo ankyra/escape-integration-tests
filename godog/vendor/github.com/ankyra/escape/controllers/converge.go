@@ -61,6 +61,13 @@ func ConvergeDeployment(context Context, depl *state.DeploymentState, refresh bo
 	if status.Code == state.DestroyPending {
 		return convergeDestroy(context, depl, releaseId, "converge.destroy_pending")
 	}
+	if status.Code == state.DestroyAndDeletePending {
+		err := convergeDestroy(context, depl, releaseId, "converge.destroy_pending")
+		if err == nil {
+			return context.GetEnvironmentState().DeleteDeployment(depl.Name)
+		}
+		return err
+	}
 	if status.IsError() {
 		return handleExponentialBackoff(context, depl, status)
 	}
@@ -71,7 +78,15 @@ func ConvergeDeployment(context Context, depl *state.DeploymentState, refresh bo
 		})
 		return nil
 	}
-	return convergeDeploy(context, depl, releaseId, "converge")
+	if state.StatusTransitionAllowed(status.Code, state.RunningPreStep) {
+		return convergeDeploy(context, depl, releaseId, "converge")
+	}
+	context.Log("converge.skip_other", map[string]string{
+		"deployment": depl.Name,
+		"release":    releaseId,
+		"status":     string(status.Code),
+	})
+	return nil
 }
 
 func handleExponentialBackoff(context Context, depl *state.DeploymentState, status *state.Status) error {
@@ -79,9 +94,10 @@ func handleExponentialBackoff(context Context, depl *state.DeploymentState, stat
 
 	// The action has not been retried so set an initial retry time and save
 	// the new status.
-	if status.TryAgainAt.IsZero() {
+	if status.TryAgainAt == nil || status.TryAgainAt.IsZero() {
 		backOff := time.Duration(BackoffStart) * time.Second
-		status.TryAgainAt = now.Add(backOff)
+		now = now.Add(backOff)
+		status.TryAgainAt = &now
 		context.Log("converge.mark_retry", map[string]string{
 			"deployment": depl.Name,
 			"backoff":    backOff.String(),
@@ -122,7 +138,8 @@ func retryAction(context Context, depl *state.DeploymentState) error {
 	now := time.Now()
 	status.Tried += 1
 	backOff := time.Duration(BackoffStart*math.Exp(float64(status.Tried))) * time.Second
-	status.TryAgainAt = now.Add(backOff)
+	now = now.Add(backOff)
+	status.TryAgainAt = &now
 	context.Log("converge.mark_retry", map[string]string{
 		"deployment": depl.Name,
 		"backoff":    backOff.String(),
@@ -135,24 +152,33 @@ func retryAction(context Context, depl *state.DeploymentState) error {
 
 func convergeSmoke(context Context, depl *state.DeploymentState, releaseId, logKey string) error {
 	context.Log(logKey, map[string]string{
-		"deployment": depl.Name,
-		"release":    releaseId,
+		"project":     depl.GetEnvironmentState().GetProjectName(),
+		"environment": depl.GetEnvironmentState().Name,
+		"deployment":  depl.Name,
+		"release":     releaseId,
+		"action":      "smoke",
 	})
 	return SmokeController{}.FetchAndSmoke(context, releaseId)
 }
 
 func convergeDestroy(context Context, depl *state.DeploymentState, releaseId, logKey string) error {
 	context.Log(logKey, map[string]string{
-		"deployment": depl.Name,
-		"release":    releaseId,
+		"project":     depl.GetEnvironmentState().GetProjectName(),
+		"environment": depl.GetEnvironmentState().Name,
+		"deployment":  depl.Name,
+		"release":     releaseId,
+		"action":      "destroy",
 	})
 	return DestroyController{}.FetchAndDestroy(context, releaseId, false, true)
 }
 
 func convergeDeploy(context Context, depl *state.DeploymentState, releaseId, logKey string) error {
 	context.Log(logKey, map[string]string{
-		"deployment": depl.Name,
-		"release":    releaseId,
+		"project":     depl.GetEnvironmentState().GetProjectName(),
+		"environment": depl.GetEnvironmentState().Name,
+		"deployment":  depl.Name,
+		"release":     releaseId,
+		"action":      "deploy",
 	})
 	return DeployController{}.FetchAndDeploy(context, releaseId, nil, nil)
 }

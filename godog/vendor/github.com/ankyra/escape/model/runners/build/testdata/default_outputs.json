@@ -25,8 +25,7 @@
                      "version": "0.0.1",
                      "status": {
                         "status": "running_post_step",
-                        "updated_at": "2018-03-14T16:24:40.566641353Z",
-                        "try_again_at": "0001-01-01T00:00:00Z"
+                        "updated_at": "2018-05-17T14:14:18.871657904+01:00"
                      }
                   },
                   "deploy": {
