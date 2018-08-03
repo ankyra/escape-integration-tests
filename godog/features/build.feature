@@ -365,4 +365,6 @@ Feature: Running the build phase
         And it has "echo parent" as an inline build script
 
        When I build the application
-       Then I should see "Build: sh: activate\nBuild: sh: parent\nBuild: sh: deactivate" in the output
+       Then I should see "activate" in the output
+       Then I should see "parent" in the output
+       Then I should see "deactivate" in the output
