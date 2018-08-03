@@ -57,6 +57,8 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^its calculated output "([^"]*)" is set to "([^"]*)"$`, itsCalculatedOutputIsSetTo)
 
 	s.Step(`^it has "([^"]*)" as an inline build script$`, setInlineBuild)
+	s.Step(`^it has "([^"]*)" as an inline provider activation script$`, itHasAsAnInlineProviderActivationScript)
+	s.Step(`^it has "([^"]*)" as an inline provider deactivation script$`, itHasAsAnInlineProviderDeactivationScript)
 
 	s.Step(`^I release the application$`, iReleaseTheApplication)
 	s.Step(`^it has "([^"]*)" as a dependency$`, itHasAsADependency)
@@ -342,6 +344,17 @@ func itsCalculatedOutputIsSetTo(key, value string) error {
 }
 
 func setInlineBuild(script string) error {
+	return setInlineScriptOnFieldTo("build", script)
+}
+func itHasAsAnInlineProviderActivationScript(arg1 string) error {
+	return setInlineScriptOnFieldTo("activate_provider", arg1)
+}
+
+func itHasAsAnInlineProviderDeactivationScript(arg1 string) error {
+	return setInlineScriptOnFieldTo("deactivate_provider", arg1)
+}
+
+func setInlineScriptOnFieldTo(field, script string) error {
 	plan := map[string]interface{}{}
 	bytes, err := ioutil.ReadFile("escape.yml")
 	if err != nil {
@@ -350,10 +363,10 @@ func setInlineBuild(script string) error {
 	if err := yaml.Unmarshal(bytes, &plan); err != nil {
 		return err
 	}
-	if plan["build"] == nil {
-		plan["build"] = map[string]interface{}{}
+	if plan[field] == nil {
+		plan[field] = map[string]interface{}{}
 	}
-	plan["build"].(map[string]interface{})["inline"] = script
+	plan[field].(map[string]interface{})["inline"] = script
 	bytes, err = yaml.Marshal(plan)
 	if err != nil {
 		return err

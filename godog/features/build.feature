@@ -352,3 +352,17 @@ Feature: Running the build phase
          And I should not see "previous_test_variable_value" in the output
         Then I build the application again
          And I should see "previous_test_variable_value" in the output
+
+    Scenario: Build activates/deactivates providers
+      Given a new Escape plan called "my-provider"
+        And it provides "provider"
+        And it has "echo activate" as an inline provider activation script
+        And it has "echo deactivate" as an inline provider deactivation script
+        And I release the application
+
+       Given a new Escape plan called "output"
+        And it consumes "provider"
+        And it has "echo parent" as an inline build script
+
+       When I build the application
+       Then I should see "Build: sh: activate\nBuild: sh: parent\nBuild: sh: deactivate" in the output
