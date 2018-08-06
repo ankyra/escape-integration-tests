@@ -414,3 +414,23 @@ Feature: Running the build phase
        Then I should see "parent" in the output
        Then I should see "deactivate-provider" in the output
        Then I should see "deactivate-parent-provider" in the output
+
+    Scenario: Build activates/deactivates dependencies configured as providers for other dependencies
+      Given a new Escape plan called "my-provider"
+        And it provides "provider"
+        And it has "echo activate" as an inline provider activation script
+        And it has "echo deactivate" as an inline provider deactivation script
+        And I release the application
+
+      Given a new Escape plan called "my-consumer"
+        And it consumes "provider"
+        And I release the application
+
+       Given a new Escape plan called "output"
+        And it has "my-provider-latest as p1" as a dependency
+        And it has "my-consumer-latest as c1" as a dependency mapping consumer "provider" to "$p1.deployment"
+
+       When I build the application
+       Then I should see "activate" in the output
+       Then I should see "parent" in the output
+       Then I should see "deactivate" in the output
