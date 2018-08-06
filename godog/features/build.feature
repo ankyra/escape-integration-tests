@@ -371,10 +371,11 @@ Feature: Running the build phase
 
     Scenario: Provider (de)activation scripts have access to deployment inputs and outputs
       Given a new Escape plan called "my-provider"
-        And input variable "input_variable" with default "test"
+        And input variable "input_variable" with default "testinput"
+         And output variable "output_variable" with default "testoutput"
         And it provides "provider"
-        And it has "echo activate $INPUT_input_variable" as an inline provider activation script
-        And it has "echo deactivate $INPUT_input_variable" as an inline provider deactivation script
+        And it has "echo activate $INPUT_input_variable $OUTPUT_output_variable" as an inline provider activation script
+        And it has "echo deactivate $INPUT_input_variable $OUTPUT_output_variable" as an inline provider deactivation script
         And I release the application
         And I deploy "_/my-provider-v0.0.0"
 
@@ -383,6 +384,33 @@ Feature: Running the build phase
         And it has "echo parent" as an inline build script
 
        When I build the application
-       Then I should see "activate test" in the output
+       Then I should see "activate testinput testoutput" in the output
        Then I should see "parent" in the output
-       Then I should see "deactivate test" in the output
+       Then I should see "deactivate testinput testoutput" in the output
+
+    Scenario: Provider (de)activation scripts are also called for a provider's providers
+      Given a new Escape plan called "my-parent-provider"
+        And it provides "parent-provider"
+        And it has "echo activate-parent-provider" as an inline provider activation script
+        And it has "echo deactivate-parent-provider" as an inline provider deactivation script
+        And I release the application
+        And I deploy "_/my-parent-provider-v0.0.0"
+
+      Given a new Escape plan called "my-provider"
+        And it consumes "parent-provider"
+        And it provides "provider"
+        And it has "echo activate-provider" as an inline provider activation script
+        And it has "echo deactivate-provider" as an inline provider deactivation script
+        And I release the application
+        And I deploy "_/my-provider-v0.0.0"
+
+       Given a new Escape plan called "output"
+        And it consumes "provider"
+        And it has "echo parent" as an inline build script
+
+       When I build the application
+       Then I should see "activate-parent-provider" in the output
+       Then I should see "activate-provider" in the output
+       Then I should see "parent" in the output
+       Then I should see "deactivate-provider" in the output
+       Then I should see "deactivate-parent-provider" in the output
