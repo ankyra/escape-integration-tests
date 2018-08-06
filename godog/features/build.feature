@@ -429,6 +429,7 @@ Feature: Running the build phase
        Given a new Escape plan called "output"
         And it has "my-provider-latest as p1" as a dependency
         And it has "my-consumer-latest as c1" as a dependency mapping consumer "provider" to "$p1.deployment"
+        And it has "echo parent" as an inline build script
 
        When I build the application
        Then I should see "activate" in the output
