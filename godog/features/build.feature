@@ -368,3 +368,21 @@ Feature: Running the build phase
        Then I should see "activate" in the output
        Then I should see "parent" in the output
        Then I should see "deactivate" in the output
+
+    Scenario: Provider (de)activation scripts have access to deployment inputs and outputs
+      Given a new Escape plan called "my-provider"
+        And input variable "input_variable" with default "test"
+        And it provides "provider"
+        And it has "echo activate $INPUT_input_variable" as an inline provider activation script
+        And it has "echo deactivate $INPUT_input_variable" as an inline provider deactivation script
+        And I release the application
+        And I deploy "_/my-provider-v0.0.0"
+
+       Given a new Escape plan called "output"
+        And it consumes "provider"
+        And it has "echo parent" as an inline build script
+
+       When I build the application
+       Then I should see "activate test" in the output
+       Then I should see "parent" in the output
+       Then I should see "deactivate test" in the output
