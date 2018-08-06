@@ -324,6 +324,24 @@ Feature: Running the build phase
        When I build the application
        Then "_/parent-release" version "0.0.0" is present in the build state
 
+    Scenario: Use one dependency as a provider for another dependency during deployment
+      Given a new Escape plan called "my-provider"
+        And it provides "provider"
+        And I release the application
+
+      Given a new Escape plan called "my-consumer"
+        And it consumes "provider"
+        And I release the application
+        And I remove the state
+
+      Given a new Escape plan called "parent-release"
+        And it has "my-provider-latest as my-provider" as a dependency
+        And it has "my-consumer-latest as my-consumer" as a dependency mapping consumer "provider" to "$my-provider.deployment"
+        And I release the application
+       Then subdeployment "_/parent-release:my-consumer" has provider "provider" set to "_/parent-release:my-provider"
+      Given I run "escape run deploy -d renamed2 parent-release-latest"
+       Then subdeployment "renamed2:my-consumer" has provider "provider" set to "renamed2:my-provider"
+
     Scenario: Use the same dependency twice for two other dependencies
       Given a new Escape plan called "my-provider"
         And it provides "provider"

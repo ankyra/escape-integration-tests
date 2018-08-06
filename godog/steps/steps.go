@@ -90,6 +90,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`I promote "([^"]*)" to "([^"]*)"`, iPromote)
 	s.Step(`I promote "([^"]*)" as "([^"]*)" to "([^"]*)"`, iPromoteWithDifferentName)
 	s.Step(`^"([^"]*)" is present in "([^"]*)" environment state$`, deploymentNameIsPresentInEnvironmentState)
+	s.Step(`^subdeployment "([^"]*)" has provider "([^"]*)" set to "([^"]*)"$`, subdeploymentHasProviderSetTo)
 
 	s.Step(`I run "([^"]*)" which fails`, runAndFailEscapeCmd)
 	s.Step(`I run "([^"]*)"`, runEscapeCmd)
@@ -626,5 +627,31 @@ func deploymentNameIsPresentInEnvironmentState(deploymentName, environment strin
 		return fmt.Errorf("%s not found in %s environment state", deploymentName, environment)
 	}
 
+	return nil
+}
+
+func subdeploymentHasProviderSetTo(subdeployment, provider, providerDepl string) error {
+	env, err := state.NewLocalStateProvider("escape_state.json").Load("prj", "dev")
+	if err != nil {
+		return err
+	}
+	e, err := env.Project.GetEnvironmentStateOrMakeNew("dev")
+	if err != nil {
+		return err
+	}
+	deployment, err := e.ResolveDeploymentPath("deploy", subdeployment)
+	if err != nil {
+		return err
+	}
+	providers := deployment.GetProviders("deploy")
+	depl, found := providers[provider]
+	if !found {
+		fmt.Println(deployment)
+		return fmt.Errorf("Provider %s was not set", provider)
+	}
+	if depl != providerDepl {
+		fmt.Println(deployment)
+		return fmt.Errorf("Provider %s was set to %s not %s", provider, depl, providerDepl)
+	}
 	return nil
 }
