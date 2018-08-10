@@ -114,7 +114,7 @@ func AddSteps(s *godog.Suite) {
 }
 
 func runEscapeCmd(args string) error {
-	return escape.Run(strings.Split(args, " ")[1:])
+	return OutputEscapeStateOnError(escape.Run(strings.Split(args, " ")[1:]))
 }
 
 func runAndFailEscapeCmd(args string) error {

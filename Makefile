@@ -10,3 +10,11 @@ escape-test:
 local-test:
 	rm -rf deps
 	cd godog && godog
+	
+# Only run tests tagged with "@failing"
+# Uses binaries on the PATH
+# Runs locally
+#
+local-failing-tag-test:
+	rm -rf deps
+	cd godog && godog --tags=@failing
