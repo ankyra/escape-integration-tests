@@ -453,3 +453,23 @@ Feature: Running the build phase
        Then I should see "activate" in the output
        Then I should see "parent" in the output
        Then I should see "deactivate" in the output
+
+    Scenario: Provider (de)activation scripts are also called for a provider's providers on deployment
+      Given a new Escape plan called "gcp"
+        And it provides "gcp"
+        And it has "echo activate" as an inline provider activation script
+        And I release the application
+        And I deploy "gcp-latest"
+
+      Given a new Escape plan called "kubernetes-gce"
+        And it provides "kubernetes"
+        And it consumes "gcp"
+        And I release the application
+        And I deploy "kubernetes-gce-latest"
+
+      Given a new Escape plan called "kubespec-notification-service"
+        And it consumes "kubernetes"
+        And I release the application
+        And I deploy "kubespec-notification-service-latest"
+       Then I should see "activate" in the output
+

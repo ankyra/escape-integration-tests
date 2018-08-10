@@ -641,17 +641,15 @@ func subdeploymentHasProviderSetTo(subdeployment, provider, providerDepl string)
 	}
 	deployment, err := e.ResolveDeploymentPath("deploy", subdeployment)
 	if err != nil {
-		return err
+		return OutputEscapeStateOnError(err)
 	}
 	providers := deployment.GetProviders("deploy")
 	depl, found := providers[provider]
 	if !found {
-		fmt.Println(deployment)
-		return fmt.Errorf("Provider %s was not set", provider)
+		return OutputEscapeStateOnError(fmt.Errorf("Provider %s was not set", provider))
 	}
 	if depl != providerDepl {
-		fmt.Println(deployment)
-		return fmt.Errorf("Provider %s was set to %s not %s", provider, depl, providerDepl)
+		return OutputEscapeStateOnError(fmt.Errorf("Provider %s was set to %s not %s", provider, depl, providerDepl))
 	}
 	return nil
 }
