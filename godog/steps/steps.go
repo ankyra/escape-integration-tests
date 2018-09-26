@@ -86,6 +86,8 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^I list the local errands$`, iListTheLocalErrands)
 	s.Step(`^I run the errand "([^"]*)" in "([^"]*)"$`, iRunTheErrandIn)
 	s.Step(`^I delete the file "([^"]*)"$`, iDeleteTheFile)
+	s.Step(`^the file "([^"]*)" contains "([^"]*)"$`, theFileContains)
+	s.Step(`^the file "([^"]*)" is equal to "([^"]*)"$`, theFileIsEqualTo)
 	s.Step(`I get the Escape plan field name "([^"]*)`, iGetEscapePlanField)
 	s.Step(`I promote "([^"]*)" to "([^"]*)"`, iPromote)
 	s.Step(`I promote "([^"]*)" as "([^"]*)" to "([^"]*)"`, iPromoteWithDifferentName)
@@ -598,7 +600,33 @@ func theMetadataShouldHaveItsSetTo(key, value string) error {
 	return nil
 }
 func iDeleteTheFile(arg1 string) error {
+	_, err := os.Stat(arg1)
+	if os.IsNotExist(err) {
+		return nil
+	}
 	return os.Remove(arg1)
+}
+
+func theFileContains(file, content string) error {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	if !strings.Contains(string(b), strings.Replace(content, "\\n", "\n", -1)) {
+		return fmt.Errorf("The file '%s' does not contain '%s', but:\n '%s", file, content, string(b))
+	}
+	return nil
+}
+
+func theFileIsEqualTo(file, content string) error {
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+	if !(string(b) == strings.Replace(content, "\\n", "\n", -1)) {
+		return fmt.Errorf("The file '%s' does not contain '%s', but:\n '%s", file, content, string(b))
+	}
+	return nil
 }
 
 func iGetEscapePlanField(fieldName string) error {

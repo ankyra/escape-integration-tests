@@ -18,7 +18,7 @@ Feature: escape run promote
       Then I should see "Deployment _/my-app in environment dev has _/my-app-v0.0.0." in the output
         And I should see "Deployment _/my-app in environment new-env is not present." in the output
         And I should see "Promoting _/my-app-v0.0.0 from dev to new-env." in the output
-        And I should see "Successfully deployed my-app-v0.0.0 with deployment name _/my-app in the new-env environment." in the output
+        And I should see "Successfully deployed _/my-app-v0.0.0 with deployment name _/my-app in the new-env environment." in the output
         And "_/my-app" is present in "new-env" environment state
 
     Scenario: Promoting a package to a new environment with a new deployment
@@ -30,7 +30,7 @@ Feature: escape run promote
       Then I should see "Deployment _/my-app in environment dev has _/my-app-v0.0.0." in the output
         And I should see "Deployment _/deployment in environment new-env is not present." in the output
         And I should see "Promoting _/my-app-v0.0.0 from dev to new-env." in the output
-        And I should see "Successfully deployed my-app-v0.0.0 with deployment name _/deployment in the new-env environment." in the output
+        And I should see "Successfully deployed _/my-app-v0.0.0 with deployment name _/deployment in the new-env environment." in the output
         And "_/deployment" is present in "new-env" environment state
 
     Scenario: No deployment name
