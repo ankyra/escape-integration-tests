@@ -61,6 +61,7 @@ func AddSteps(s *godog.Suite) {
 	s.Step(`^it has "([^"]*)" as an inline provider deactivation script$`, itHasAsAnInlineProviderDeactivationScript)
 
 	s.Step(`^I release the application$`, iReleaseTheApplication)
+	s.Step(`^it has "([^"]*)" as an extension$`, itHasAsAnExtension)
 	s.Step(`^it has "([^"]*)" as a dependency$`, itHasAsADependency)
 	s.Step(`^it has "([^"]*)" as a dependency mapping consumer "([^"]*)" to "([^"]*)"$`, itHasAsADependencyMappingConsumerTo)
 	s.Step(`^it has "([^"]*)" as a dependency mapping "([^"]*)" to "([^"]*)"$`, itHasAsADependencyMappingTo)
@@ -422,6 +423,16 @@ func iDeployRelease(arg1 string) error {
 func iReleaseTheApplication() error {
 	err := escape.Run([]string{"run", "release", "-f"})
 	return OutputEscapeStateOnError(err)
+}
+
+func itHasAsAnExtension(extension string) error {
+	plan := escape_plan.NewEscapePlan()
+	err := plan.LoadConfig("escape.yml")
+	if err != nil {
+		return nil
+	}
+	plan.Extends = append(plan.Extends, extension)
+	return ioutil.WriteFile("escape.yml", plan.ToMinifiedYaml(), 0644)
 }
 
 func itHasAsADependency(dependency string) error {
