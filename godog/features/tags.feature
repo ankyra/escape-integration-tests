@@ -18,6 +18,8 @@ Feature: Release tags
         And a new Escape plan called "my-parent"
         And it has "my-tagged-release:my-tag" as a dependency 
         And I release the application
+        And I run "escape inventory query -p _ -a my-parent -v latest"
+       Then I should see "my-tagged-release-v0.0.0" in the output
 
   Scenario: I can tag a release and deploy on tag
       Given a new Escape plan called "my-tagged-release"
