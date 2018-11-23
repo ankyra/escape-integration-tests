@@ -4,10 +4,20 @@
 escape-test:
 	escape run build && escape run test
 
+local-notice:
+	@echo "##################################################"
+	@echo ""
+	@echo "  Hello fellow Anchor:"
+	@echo "  This Make step uses the 'escape' and "
+	@echo "  'escape-inventory' binaries found on the PATH"
+	@echo ""
+	@echo "##################################################"
+	@echo 
+
 # Uses binaries on the PATH
 # Runs locally
 #
-local-test:
+local-test: local-notice
 	rm -rf deps
 	cd godog && godog
 	
@@ -15,7 +25,7 @@ local-test:
 # Uses binaries on the PATH
 # Runs locally
 #
-local-failing-tag-test:
+local-failing-tag-test: local-notice
 	rm -rf deps
 	cd godog && godog --tags=@failing
 
@@ -23,7 +33,7 @@ local-failing-tag-test:
 # Uses binaries on the PATH
 # Runs locally
 #
-local-builds-tag-test:
+local-builds-tag-test: local-notice
 	rm -rf deps
 	cd godog && godog --tags=@builds
 
@@ -31,6 +41,6 @@ local-builds-tag-test:
 # Uses binaries on the PATH
 # Runs locally
 #
-local-provider-activation-tag-test:
+local-provider-activation-tag-test: local-notice
 	rm -rf deps
 	cd godog && godog --tags=@provider-activation
