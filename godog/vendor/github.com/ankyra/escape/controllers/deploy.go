@@ -20,14 +20,14 @@ import (
 	"os"
 
 	"github.com/ankyra/escape-core/state"
-	. "github.com/ankyra/escape/model/interfaces"
+	"github.com/ankyra/escape/model"
 	"github.com/ankyra/escape/model/runners"
 	"github.com/ankyra/escape/model/runners/deploy"
 )
 
 type DeployController struct{}
 
-func SetExtraProviders(context Context, stage string, extraProviders map[string]string) error {
+func SetExtraProviders(context *model.Context, stage string, extraProviders map[string]string) error {
 	envState := context.GetEnvironmentState()
 	deplState, err := envState.GetOrCreateDeploymentState(context.GetRootDeploymentName())
 	if err != nil {
@@ -37,7 +37,7 @@ func SetExtraProviders(context Context, stage string, extraProviders map[string]
 	return deplState.ConfigureProviders(metadata, stage, extraProviders)
 }
 
-func SaveExtraInputsAndProvidersInDeploymentState(context Context, stage string, extraVars, extraProviders map[string]string) error {
+func SaveExtraInputsAndProvidersInDeploymentState(context *model.Context, stage string, extraVars map[string]interface{}, extraProviders map[string]string) error {
 	envState := context.GetEnvironmentState()
 	deplState, err := envState.GetOrCreateDeploymentState(context.GetRootDeploymentName())
 	if err != nil {
@@ -53,14 +53,14 @@ func SaveExtraInputsAndProvidersInDeploymentState(context Context, stage string,
 	return deplState.UpdateUserInputs(stage, inputs)
 }
 
-func (d DeployController) Deploy(context Context, extraVars, extraProviders map[string]string) error {
-	context.PushLogRelease(context.GetReleaseMetadata().GetReleaseId())
+func (d DeployController) Deploy(context *model.Context, extraVars map[string]interface{}, extraProviders map[string]string) error {
+	context.PushLogRelease(context.GetReleaseMetadata().GetQualifiedReleaseId())
 	context.PushLogSection("Deploy")
 	context.Log("deploy.start", nil)
 	if err := SaveExtraInputsAndProvidersInDeploymentState(context, "deploy", extraVars, extraProviders); err != nil {
 		return MarkDeploymentFailed(context, err, state.Failure)
 	}
-	runnerContext, err := runners.NewRunnerContext(context, "deploy")
+	runnerContext, err := runners.NewRunnerContext(context)
 	if err != nil {
 		return MarkDeploymentFailed(context, err, state.Failure)
 	}
@@ -76,7 +76,7 @@ func (d DeployController) Deploy(context Context, extraVars, extraProviders map[
 	return nil
 }
 
-func (d DeployController) FetchAndDeploy(context Context, releaseId string, extraVars, extraProviders map[string]string) error {
+func (d DeployController) FetchAndDeploy(context *model.Context, releaseId string, extraVars map[string]interface{}, extraProviders map[string]string) error {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return MarkDeploymentFailed(context, err, state.Failure)
@@ -93,7 +93,10 @@ func (d DeployController) FetchAndDeploy(context Context, releaseId string, extr
 	return os.Chdir(currentDir)
 }
 
-func MarkDeploymentFailed(context Context, err error, errorCode state.StatusCode) error {
+func MarkDeploymentFailed(context *model.Context, err error, errorCode state.StatusCode) error {
+	if context.RootDeploymentName == "" {
+		return err
+	}
 	envState := context.GetEnvironmentState()
 	deplState, err2 := envState.GetOrCreateDeploymentState(context.GetRootDeploymentName())
 	if err2 != nil {

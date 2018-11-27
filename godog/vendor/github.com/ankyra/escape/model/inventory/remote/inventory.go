@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	core "github.com/ankyra/escape-core"
+	"github.com/ankyra/escape-core/parsers"
 	"github.com/ankyra/escape/model/inventory/types"
 	"github.com/ankyra/escape/model/remote"
 )
@@ -70,12 +71,14 @@ const error_Upload = "Couldn't upload release '%s/%s'"
 const error_Register = "Couldn't register release '%s/%s'"
 
 func (r *inventory) QueryReleaseMetadata(project, name, version string) (*core.ReleaseMetadata, error) {
-	if !strings.HasPrefix(version, "v") && version != "latest" {
-		version = "v" + version
+	query, err := parsers.ParseVersionQuery(version)
+	if err != nil {
+		return nil, err
 	}
-	releaseQuery := project + "/" + name + "-" + version
+	version = query.ToString()
+	releaseQuery := project + "/" + name + query.ToVersionSuffix()
 	if project == "_" {
-		releaseQuery = name + "-" + version
+		releaseQuery = name + query.ToVersionSuffix()
 	}
 
 	url := r.endpoints.ReleaseQuery(project, name, version)
@@ -377,6 +380,35 @@ func (r *inventory) register(project string, metadata *core.ReleaseMetadata) err
 		return fmt.Errorf(baseError+error_ListApplicationsNotFound, project, r.apiServer)
 	} else if resp.StatusCode == 500 {
 		return fmt.Errorf(baseError+error_InventoryServerSide, r.apiServer)
+	} else if resp.StatusCode != 200 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		body := buf.String()
+		return fmt.Errorf(baseError+error_InventoryUnknownStatus, r.apiServer, resp.StatusCode, body)
+	}
+	return nil
+}
+
+func (r *inventory) TagRelease(project, name, version, tag string) error {
+	query, err := parsers.ParseVersionQuery(version)
+	if err != nil {
+		return err
+	}
+	url := r.endpoints.TagRelease(project, name)
+	data := map[string]interface{}{
+		"release_id": project + "/" + name + query.ToVersionSuffix(),
+		"tag":        tag,
+	}
+	resp, err := r.client.POST_json_with_authentication(url, data)
+	if err != nil {
+		return err
+	}
+	baseError := fmt.Sprintf("Couldn't tag '%s' with '%s'", data["release_id"], data["tag"])
+	if resp.StatusCode == 400 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		body := buf.String()
+		return fmt.Errorf(baseError+error_InventoryUserSide, r.apiServer, body)
 	} else if resp.StatusCode != 200 {
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)

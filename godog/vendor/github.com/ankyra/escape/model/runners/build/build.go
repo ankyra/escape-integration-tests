@@ -22,7 +22,7 @@ import (
 	"github.com/ankyra/escape/model/runners/deploy"
 )
 
-var Stage = "build"
+const Stage = "build"
 
 func NewPreBuildRunner() Runner {
 	return NewPreScriptStepRunner(Stage, "pre_build", state.RunningPreStep, state.Failure)
@@ -42,10 +42,12 @@ func NewTestRunner() Runner {
 
 func NewBuildRunner() Runner {
 	return NewCompoundRunner(
-		NewDependencyRunner(deploy.Stage, Stage, deploy.NewDeployRunner, state.Failure),
+		NewDependencyRunner("build", "build", deploy.NewDeployRunner, state.Failure),
+		NewProviderActivationRunner(Stage),
 		NewPreBuildRunner(),
 		NewMainBuildRunner(),
 		NewPostBuildRunner(),
+		NewProviderDeactivationRunner(Stage),
 		NewStatusCodeRunner(Stage, state.OK),
 	)
 }

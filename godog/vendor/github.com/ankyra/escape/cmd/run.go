@@ -27,10 +27,12 @@ var refresh bool
 var skipDeployment bool
 var uber bool
 
+var versionOverride string
 var skipBuild, skipTests bool
 var skipCache, skipPush bool
 var skipDeploy, skipSmoke bool
 var skipDestroyBuild, skipDestroyDeploy, skipDestroy bool
+var tagGit, pushGitTags bool
 var skipIfExists bool
 var toEnv, toDeployment string
 
@@ -49,14 +51,14 @@ var runBuildCmd = &cobra.Command{
 	Short:   "Build the Escape plan using a local state file.",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 			return err
 		}
 		parsedExtraVars, err := ParseExtraVars(extraVars)
 		if err != nil {
 			return err
 		}
-		parsedExtraProviders, err := ParseExtraVars(extraProviders)
+		parsedExtraProviders, err := ParseExtraProviders(extraProviders)
 		if err != nil {
 			return err
 		}
@@ -69,7 +71,7 @@ var runConvergeCmd = &cobra.Command{
 	Short:   "Bring the environment into its desired state",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(false); err != nil {
+		if err := ProcessFlagsForContext(); err != nil {
 			return err
 		}
 		return controllers.ConvergeController{}.Converge(context, refresh)
@@ -81,7 +83,7 @@ var runDeployCmd = &cobra.Command{
 	Short: "Deploy a release unit.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		loadLocalEscapePlan := len(args) == 0
-		if err := ProcessFlagsForContext(loadLocalEscapePlan); err != nil {
+		if err := processFlagsForContext(loadLocalEscapePlan, ""); err != nil {
 			return err
 		}
 
@@ -91,7 +93,7 @@ var runDeployCmd = &cobra.Command{
 			return err
 		}
 
-		parsedExtraProviders, err := ParseExtraVars(extraProviders)
+		parsedExtraProviders, err := ParseExtraProviders(extraProviders)
 		if err != nil {
 			return err
 		}
@@ -113,7 +115,7 @@ var runDestroyCmd = &cobra.Command{
 	Short:   "Destroy the deployment of the current release in the local state file.",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 			return err
 		}
 		return controllers.DestroyController{}.Destroy(context, !skipBuild, !skipDeployment)
@@ -125,7 +127,7 @@ var runPackageCmd = &cobra.Command{
 	Short:   "Create a package",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 			return err
 		}
 		return controllers.PackageController{}.Package(context, force)
@@ -137,19 +139,20 @@ var runReleaseCmd = &cobra.Command{
 	Short:   "Release (build, test, package, push)",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlanWithVersionOverride(versionOverride); err != nil {
 			return err
 		}
 		parsedExtraVars, err := ParseExtraVars(extraVars)
 		if err != nil {
 			return err
 		}
-		parsedExtraProviders, err := ParseExtraVars(extraProviders)
+		parsedExtraProviders, err := ParseExtraProviders(extraProviders)
 		if err != nil {
 			return err
 		}
 		return controllers.ReleaseController{}.Release(context, uber, skipBuild, skipTests,
-			skipCache, skipPush, skipDestroyBuild, skipDeploy, skipSmoke, skipDestroyDeploy, skipDestroy, skipIfExists, force, parsedExtraVars, parsedExtraProviders)
+			skipCache, skipPush, skipDestroyBuild, skipDeploy, skipSmoke, skipDestroyDeploy,
+			skipDestroy, skipIfExists, tagGit, pushGitTags, force, parsedExtraVars, parsedExtraProviders)
 	},
 }
 
@@ -158,7 +161,7 @@ var runSmokeCmd = &cobra.Command{
 	Short:   "Run smoke tests using a local state file.",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 			return err
 		}
 		return controllers.SmokeController{}.Smoke(context)
@@ -170,7 +173,7 @@ var runTestCmd = &cobra.Command{
 	Short:   "Run tests using a local state file.",
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 			return err
 		}
 		return controllers.TestController{}.Test(context)
@@ -191,7 +194,7 @@ var runPromoteCmd = &cobra.Command{
 			return err
 		}
 
-		parsedExtraProviders, err := ParseExtraVars(extraProviders)
+		parsedExtraProviders, err := ParseExtraProviders(extraProviders)
 		if err != nil {
 			return err
 		}
@@ -229,6 +232,7 @@ func init() {
 
 	runCmd.AddCommand(runReleaseCmd)
 	setPlanAndStateFlags(runReleaseCmd)
+	runReleaseCmd.Flags().StringVarP(&versionOverride, "override-version", "", "", "Override the version found in the Escape plan.")
 	runReleaseCmd.Flags().BoolVarP(&uber, "uber", "u", false, "Build an uber package containing all dependencies")
 	runReleaseCmd.Flags().BoolVarP(&skipBuild, "skip-build", "", false, "Skip build")
 	runReleaseCmd.Flags().BoolVarP(&skipTests, "skip-tests", "", false, "Skip tests")
@@ -240,6 +244,8 @@ func init() {
 	runReleaseCmd.Flags().BoolVarP(&skipDestroyBuild, "skip-build-destroy", "", false, "Skip build destroy step")
 	runReleaseCmd.Flags().BoolVarP(&skipDestroyDeploy, "skip-deploy-destroy", "", false, "Skip deploy destroy step")
 	runReleaseCmd.Flags().BoolVarP(&skipIfExists, "skip-if-exists", "", false, "Skip all the steps if the version that would be released already exists in the Inventory")
+	runReleaseCmd.Flags().BoolVarP(&tagGit, "tag-git", "", false, "Following a successful release tag the current commit with the version number.")
+	runReleaseCmd.Flags().BoolVarP(&pushGitTags, "push-git-tags", "", true, "Push git tags. Only used when --tag-git is set.")
 	runReleaseCmd.Flags().BoolVarP(&force, "force", "f", false, "Overwrite output file if it exists")
 	runReleaseCmd.Flags().StringArrayVarP(&extraVars, "extra-vars", "v", []string{}, "Extra variables (format: key=value, key=@value.txt, @values.json)")
 	runReleaseCmd.Flags().StringArrayVarP(&extraProviders, "extra-providers", "p", []string{}, "Extra providers (format: provider=deployment, provider=@deployment.txt, @values.json)")

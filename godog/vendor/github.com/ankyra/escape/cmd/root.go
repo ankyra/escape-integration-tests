@@ -17,10 +17,10 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/ankyra/escape/model"
-	. "github.com/ankyra/escape/model/interfaces"
 	"github.com/ankyra/escape/util"
 	"github.com/ankyra/escape/util/logger"
 	"github.com/spf13/cobra"
@@ -28,7 +28,7 @@ import (
 
 var cfgFile, cfgProfile, cfgLogLevel, cfgLogger string
 var cfgLogCollapse, jsonFlag bool
-var context Context
+var context *model.Context
 
 var RootCmd = &cobra.Command{
 	Use:           "escape",
@@ -46,6 +46,7 @@ See the documentation at https://escape.ankyra.io/docs/
 		context = model.NewContext()
 		err := context.LoadEscapeConfig(cfgFile, cfgProfile)
 		if err != nil {
+			fmt.Println(err.Error())
 			return err
 		}
 
@@ -64,10 +65,14 @@ func Execute() {
 			context.Log("error", map[string]string{
 				"error": err.Error(),
 			})
+			context.Logger.Close()
 		} else {
 			RootCmd.UsageFunc()(RootCmd)
 		}
 		os.Exit(1)
+	}
+	if context != nil {
+		context.Logger.Close()
 	}
 }
 

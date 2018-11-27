@@ -34,7 +34,7 @@ func compileDependencies(ctx *CompilerContext) error {
 		if err != nil {
 			return err
 		}
-		ctx.Metadata.AddDependency(depend)
+		ctx.Metadata.AddDependency(depend.Copy())
 	}
 	return nil
 }
@@ -56,7 +56,10 @@ func compileDependencyConfig(ctx *CompilerContext, depend *core.DependencyConfig
 			}
 		}
 		if !found {
-			ctx.Metadata.AddConsumes(consume)
+			consumerForDep := consume.Copy()
+			consumerForDep.SkipActivate = true
+			consumerForDep.SkipDeactivate = true
+			ctx.Metadata.AddConsumes(consumerForDep)
 		}
 	}
 	for _, input := range metadata.Inputs {
@@ -77,6 +80,7 @@ func compileDependencyConfig(ctx *CompilerContext, depend *core.DependencyConfig
 		}
 
 		if !input.HasDefault() {
+			input = input.Copy()
 			input.Scopes = depend.Scopes
 			input.EvalBeforeDependencies = true
 			ctx.Metadata.AddInputVariable(input)

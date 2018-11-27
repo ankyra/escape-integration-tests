@@ -125,13 +125,17 @@ func (t *fancyTerminalOutput) plainOutput(entry *api.LogEntry) (string, error) {
 		fmt.Fprint(os.Stderr, "\x1b[32m")
 		fmt.Fprint(os.Stderr, "\u2714\ufe0f ")
 	} else if entry.LogLevel == api.ERROR {
-		fmt.Fprint(os.Stderr, "\x1b[31m")
+		fmt.Fprint(os.Stderr, "\x1b[31m ")
 	}
 	//msg := stripCtlAndExtFromUnicode(entry.Message)
 	msg := entry.Message
 	fmt.Fprintln(os.Stderr, msg)
 	fmt.Fprint(os.Stderr, "\x1b[0m")
 	return "", nil
+}
+
+func (t *fancyTerminalOutput) Close() {
+	fmt.Fprintln(os.Stderr, "")
 }
 
 func (t *fancyTerminalOutput) makeWhiteSpace(n int) string {

@@ -21,7 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/ankyra/escape/model/interfaces"
+	"github.com/ankyra/escape/model"
 	"github.com/ankyra/escape/model/paths"
 	"github.com/ankyra/escape/model/runners"
 	"github.com/ankyra/escape/model/runners/errand"
@@ -29,7 +29,7 @@ import (
 
 type ErrandsController struct{}
 
-func (ErrandsController) List(context Context) *ControllerResult {
+func (ErrandsController) List(context *model.Context) *ControllerResult {
 	result := NewControllerResult()
 
 	metadata := context.GetReleaseMetadata()
@@ -54,7 +54,7 @@ func (ErrandsController) List(context Context) *ControllerResult {
 	return result
 }
 
-func (ErrandsController) Run(context Context, errandStr string, extraVars map[string]string) error {
+func (ErrandsController) Run(context *model.Context, errandStr string, extraVars map[string]interface{}) error {
 	//        applog("errand.start", errand=errand, release=escape_plan.get_versionless_build_id())
 	metadata := context.GetReleaseMetadata()
 	if metadata.GetErrands() == nil {
@@ -65,14 +65,14 @@ func (ErrandsController) Run(context Context, errandStr string, extraVars map[st
 		return fmt.Errorf("The errand '%s' could not be found in deployment '%s'. You can use 'escape errands list' to see the available errands.", errandStr, context.GetRootDeploymentName())
 	}
 	runner := errand.NewErrandRunner(errandObj, extraVars)
-	runnerContext, err := runners.NewRunnerContext(context, "deploy")
+	runnerContext, err := runners.NewRunnerContext(context)
 	if err != nil {
 		return err
 	}
 	return runner.Run(runnerContext)
 }
 
-func (e ErrandsController) RunRemoteErrand(context Context, errandStr string, extraVars map[string]string) error {
+func (e ErrandsController) RunRemoteErrand(context *model.Context, errandStr string, extraVars map[string]interface{}) error {
 	name, err := ioutil.TempDir("", "escape-errand")
 	if err != nil {
 		return fmt.Errorf("Could not create temporary directory for errand: %s", err.Error())

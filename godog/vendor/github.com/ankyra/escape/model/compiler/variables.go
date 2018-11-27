@@ -58,6 +58,22 @@ func compileOutputs(ctx *CompilerContext) error {
 		}
 		ctx.Metadata.AddOutputVariable(v)
 	}
+	for _, output := range ctx.Plan.BuildOutputs {
+		v, err := compileVariable(ctx, output)
+		if err != nil {
+			return fmt.Errorf("Error compiling 'build_outputs' variable: %s", err.Error())
+		}
+		v.Scopes = []string{"build"}
+		ctx.Metadata.AddOutputVariable(v)
+	}
+	for _, output := range ctx.Plan.DeployOutputs {
+		v, err := compileVariable(ctx, output)
+		if err != nil {
+			return fmt.Errorf("Error compiling 'deploy_outputs' variable: %s", err.Error())
+		}
+		v.Scopes = []string{"deploy"}
+		ctx.Metadata.AddOutputVariable(v)
+	}
 	return nil
 }
 
@@ -82,13 +98,8 @@ func compileDefault(ctx *CompilerContext, v *variables.Variable) (*variables.Var
 		if err != nil {
 			return nil, fmt.Errorf("Couldn't parse expression '%s' in default field: %s", defaultValue, err.Error())
 		}
-		str, err := ctx.RunScriptForCompileStep(defaultValue)
-		if err == nil {
-			v.Default = &str
-		}
 		return v, nil
 	case []interface{}:
-		values := []interface{}{}
 		for _, k := range v.Default.([]interface{}) {
 			switch k.(type) {
 			case string:
@@ -96,15 +107,8 @@ func compileDefault(ctx *CompilerContext, v *variables.Variable) (*variables.Var
 				if err != nil {
 					return nil, fmt.Errorf("Couldn't parse expression '%s' in default field: %s", k.(string), err.Error())
 				}
-				str, err := ctx.RunScriptForCompileStep(k.(string))
-				if err == nil {
-					values = append(values, str)
-				} else {
-					values = append(values, k)
-				}
 			}
 		}
-		v.Default = values
 		return v, nil
 	}
 	return nil, fmt.Errorf("Unexpected type '%T' for default field of variable '%s'", v.Default, v.Id)

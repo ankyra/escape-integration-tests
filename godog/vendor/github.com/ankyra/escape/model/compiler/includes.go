@@ -21,8 +21,16 @@ import (
 	"path/filepath"
 )
 
-func compileIncludes(ctx *CompilerContext) error {
-	for _, globPattern := range ctx.Plan.Includes {
+func compileIncludesAndGenerates(ctx *CompilerContext) error {
+	if err := doGlobPatterns(ctx, ctx.Plan.Includes); err != nil {
+		return err
+	}
+	ctx.Metadata.Generates = ctx.Plan.Generates
+	return doGlobPatterns(ctx, ctx.Plan.Generates)
+}
+
+func doGlobPatterns(ctx *CompilerContext, globPatterns []string) error {
+	for _, globPattern := range globPatterns {
 		paths, err := filepath.Glob(globPattern)
 		if err != nil {
 			fmt.Println("Warning: ignoring pattern error: " + err.Error())

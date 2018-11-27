@@ -2,7 +2,7 @@
 date: 2017-11-11 00:00:00
 title: "Dependencies"
 slug: dependencies
-type: "docs"
+type: "reference"
 toc: true
 wip: false
 contributeLink: https://github.com/ankyra/escape-core/blob/master/dependency_config.go
@@ -25,8 +25,9 @@ Field | Type | Description
 |||Example: ``` consumes: - my-provider depends: - release_id: my-org/my-dep-latest consumes: provider: $my-provider.deployment ``` 
 |deployment_name|`string`|The name of the (sub)-deployment. This defaults to the versionless release id; e.g. if the release_id is `my-org/my-dep-v1.0` then the DeploymentName will be `my-org/my-dep` by default. 
 |variable|`string`|The variable used to reference this dependency. By default the variable name is the versionless release id of the dependency, but this can be overruled by renaming the dependency (e.g. `my-org/my-release-latest as my-variable`. This field will be set automatically at build time. Overwriting this field in the Escape plan has no effect. 
-|scopes|`[string]`|A list of scopes (`build`, `deploy`) that defines during which stage(s) this dependency should be fetched and deployed. *Currently not implemented!* 
+|scopes|`scopes.Scopes`|A list of scopes (`build`, `deploy`) that defines during which stage(s) this dependency should be fetched and deployed. *Currently not implemented!* 
 |-|`string`|Parsed out of the release ID. For example: when release id is `"my-org/my-name-v1.0"` this value is `"my-org"`. 
 |-|`string`|Parsed out of the release ID. For example: when release id is `"my-org/my-name-v1.0"` this value is `"my-name"`. 
 |-|`string`|Parsed out of the release ID. For example: when release id is `"my-org/my-name-v1.0"` this value is `"1.0"`. 
+|-|`string`|Parsed out of the release ID. For example: when release id is `"my-org/my-name:tag"` this value is `"tag"`. 
 

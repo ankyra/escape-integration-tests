@@ -44,9 +44,11 @@ func NewSmokeRunner() Runner {
 func NewDeployRunner() Runner {
 	return NewCompoundRunner(
 		NewDependencyRunner(Stage, Stage, NewDeployRunner, state.Failure),
+		NewProviderActivationRunner(Stage),
 		NewPreDeployRunner(),
 		NewMainDeployRunner(),
 		NewPostDeployRunner(),
+		NewProviderDeactivationRunner(Stage),
 		NewStatusCodeRunner(Stage, state.OK),
 	)
 }

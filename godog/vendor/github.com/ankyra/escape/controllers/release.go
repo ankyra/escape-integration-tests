@@ -18,16 +18,18 @@ package controllers
 
 import (
 	"fmt"
+	"os"
 
 	core "github.com/ankyra/escape-core"
-	. "github.com/ankyra/escape/model/interfaces"
+	"github.com/ankyra/escape/model"
 	"github.com/ankyra/escape/model/paths"
 	"github.com/ankyra/escape/util"
+	"github.com/ankyra/escape/util/logger/loggers"
 )
 
 type ReleaseController struct{}
 
-func (r ReleaseController) Release(context Context, buildFatPackage, skipBuild, skipTests, skipCache, skipPush, skipDestroyBuild, skipDeploy, skipSmoke, skipDestroyDeploy, skipDestroy, skipIfExists, forceOverwrite bool, extraVars, extraProviders map[string]string) error {
+func (r ReleaseController) Release(context *model.Context, buildFatPackage, skipBuild, skipTests, skipCache, skipPush, skipDestroyBuild, skipDeploy, skipSmoke, skipDestroyDeploy, skipDestroy, skipIfExists, tagGit, pushGitTags, forceOverwrite bool, extraVars map[string]interface{}, extraProviders map[string]string) error {
 	context.PushLogRelease(context.GetReleaseMetadata().GetQualifiedReleaseId())
 	context.PushLogSection("Release")
 	context.Log("release.start", nil)
@@ -86,13 +88,18 @@ func (r ReleaseController) Release(context Context, buildFatPackage, skipBuild, 
 			return err
 		}
 	}
+	if tagGit {
+		if err := r.CreateAndPushGitTag(context, pushGitTags); err != nil {
+			return err
+		}
+	}
 	context.Log("release.finished", nil)
 	context.PopLogRelease()
 	context.PopLogSection()
 	return nil
 }
 
-func (r ReleaseController) cacheRelease(context Context, forceOverwrite bool) error {
+func (r ReleaseController) cacheRelease(context *model.Context, forceOverwrite bool) error {
 	path := paths.NewPath()
 	metadata := context.GetReleaseMetadata()
 	packagePath := path.ReleaseLocation(metadata)
@@ -106,5 +113,28 @@ func (r ReleaseController) cacheRelease(context Context, forceOverwrite bool) er
 	if err := util.CopyFile(packagePath, userPackageCachePath); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (r ReleaseController) CreateAndPushGitTag(context *model.Context, push bool) error {
+	rec := util.NewProcessRecorder()
+	metadata := context.GetReleaseMetadata()
+	context.PushLogSection("Tag")
+	context.Log("release.tag", map[string]string{
+		"release": metadata.GetQualifiedReleaseId(),
+	})
+	output, err := rec.Record([]string{"git", "tag", "-a", metadata.GetQualifiedReleaseId(),
+		"-m", "Escape release " + metadata.GetQualifiedReleaseId()}, os.Environ(), loggers.NewLoggerDummy())
+	if err != nil {
+		return fmt.Errorf("Failed to tag %s: %s. %s", metadata.GetQualifiedReleaseId(), err.Error(), output)
+	}
+	if push {
+		context.Log("release.tag_push", nil)
+		output, err := rec.Record([]string{"git", "push", "origin", metadata.GetQualifiedReleaseId()}, os.Environ(), loggers.NewLoggerDummy())
+		if err != nil {
+			return fmt.Errorf("Failed to push tag %s: %s. %s", metadata.GetQualifiedReleaseId(), err.Error(), output)
+		}
+	}
+	context.PopLogSection()
 	return nil
 }

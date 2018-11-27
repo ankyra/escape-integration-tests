@@ -1,7 +1,5 @@
 # Escape 
 
-[![Build status](https://circleci.com/gh/ankyra/escape.svg?style=shield&circle-token=2f7f6d97a01eefe7b3d1967ce11bb183034c963d)](https://circleci.com/gh/ankyra/escape) 
-
 ![Escape Logo](/hero.png)
 
 Escape is an Open Source release engineering toolkit that can be used to build,
@@ -26,14 +24,14 @@ be found [here](https://github.com/ankyra/escape-inventory).
 
 ## Usage and Documentation
 
-See the [Escape Docs](https://escape.ankyra.io/docs/) for the full documentation.
+See the [Escape Docs](https://www.ankyra.io/product/escape/) for the full documentation.
 
 ## Downloads
 
 Cross-platform binaries can be downloaded from [the
-webite](https://escape.ankyra.io/downloads/) where you'll also find the
+webite](https://www.ankyra.io/products/escape/downloads/) where you'll also find the
 [installation
-instructions](https://escape.ankyra.io/docs/escape-installation/).
+instructions](https://www.ankyra.io/products/escape/tutorial/).
 
 ## Docker
 

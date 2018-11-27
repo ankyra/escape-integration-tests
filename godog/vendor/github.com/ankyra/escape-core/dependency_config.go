@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/ankyra/escape-core/parsers"
+	"github.com/ankyra/escape-core/scopes"
 )
 
 /*
@@ -81,7 +82,7 @@ type DependencyConfig struct {
 
 	// A list of scopes (`build`, `deploy`) that defines during which stage(s)
 	// this dependency should be fetched and deployed. *Currently not implemented!*
-	Scopes []string `json:"scopes" yaml:"scopes"`
+	Scopes scopes.Scopes `json:"scopes" yaml:"scopes"`
 
 	// Parsed out of the release ID. For example: when release id is
 	// `"my-org/my-name-v1.0"` this value is `"my-org"`.
@@ -94,6 +95,10 @@ type DependencyConfig struct {
 	// Parsed out of the release ID. For example: when release id is
 	// `"my-org/my-name-v1.0"` this value is `"1.0"`.
 	Version string `json:"-" yaml:"-"`
+
+	// Parsed out of the release ID. For example: when release id is
+	// `"my-org/my-name:tag"` this value is `"tag"`.
+	Tag string `json:"-" yaml:"-"`
 }
 
 type ResolvedDependencyConfig struct {
@@ -107,7 +112,7 @@ func NewDependencyConfig(releaseId string) *DependencyConfig {
 		Mapping:       map[string]interface{}{},
 		BuildMapping:  map[string]interface{}{},
 		DeployMapping: map[string]interface{}{},
-		Scopes:        []string{"build", "deploy"},
+		Scopes:        scopes.AllScopes,
 		Consumes:      map[string]string{},
 	}
 }
@@ -123,6 +128,30 @@ func DependencyNeedsResolvingError(dependencyReleaseId string) error {
 	return fmt.Errorf("The dependency '%s' needs its version resolved.", dependencyReleaseId)
 }
 
+func (d *DependencyConfig) Copy() *DependencyConfig {
+	result := NewDependencyConfig(d.ReleaseId)
+	for k, v := range d.Mapping {
+		result.Mapping[k] = v
+	}
+	for k, v := range d.BuildMapping {
+		result.BuildMapping[k] = v
+	}
+	for k, v := range d.DeployMapping {
+		result.DeployMapping[k] = v
+	}
+	for k, v := range d.Consumes {
+		result.Consumes[k] = v
+	}
+	result.DeploymentName = d.DeploymentName
+	result.VariableName = d.VariableName
+	result.Scopes = d.Scopes.Copy()
+	result.Project = d.Project
+	result.Name = d.Name
+	result.Version = d.Version
+	result.Tag = d.Tag
+	return result
+}
+
 func (d *DependencyConfig) EnsureConfigIsParsed() error {
 	parsed, err := parsers.ParseDependency(d.ReleaseId)
 	if err != nil {
@@ -132,6 +161,7 @@ func (d *DependencyConfig) EnsureConfigIsParsed() error {
 	d.Project = parsed.Project
 	d.Name = parsed.Name
 	d.Version = parsed.Version
+	d.Tag = parsed.Tag
 	if d.VariableName == "" {
 		d.VariableName = parsed.VariableName
 	}
@@ -139,10 +169,13 @@ func (d *DependencyConfig) EnsureConfigIsParsed() error {
 }
 
 func (d *DependencyConfig) NeedsResolving() bool {
-	return d.Version == "latest" || strings.HasSuffix(d.Version, ".@")
+	return d.Tag != "" || d.Version == "latest" || strings.HasSuffix(d.Version, ".@")
 }
 
 func (d *DependencyConfig) GetVersionAsString() (version string) {
+	if d.Tag != "" {
+		return d.Tag
+	}
 	version = "v" + d.Version
 	if d.Version == "latest" {
 		version = d.Version
@@ -158,7 +191,7 @@ func (d *DependencyConfig) Validate(m *ReleaseMetadata) error {
 		d.DeployMapping = map[string]interface{}{}
 	}
 	if d.Scopes == nil || len(d.Scopes) == 0 {
-		d.Scopes = []string{"build", "deploy"}
+		d.Scopes = scopes.AllScopes
 	}
 	if err := d.EnsureConfigIsParsed(); err != nil {
 		return err
@@ -199,12 +232,7 @@ func (d *DependencyConfig) AddVariableMapping(scopes []string, id, key string) {
 }
 
 func (d *DependencyConfig) InScope(scope string) bool {
-	for _, s := range d.Scopes {
-		if s == scope {
-			return true
-		}
-	}
-	return false
+	return d.Scopes.InScope(scope)
 }
 
 func ExpectingTypeForDependencyFieldError(typ, field string, val interface{}) error {
@@ -244,7 +272,7 @@ func NewDependencyConfigFromMap(dep map[interface{}]interface{}) (*DependencyCon
 	buildMapping := map[string]interface{}{}
 	deployMapping := map[string]interface{}{}
 	consumes := map[string]string{}
-	scopes := []string{}
+	depScopes := []string{}
 	for key, val := range dep {
 		var err error
 		keyStr, ok := key.(string)
@@ -304,11 +332,11 @@ func NewDependencyConfigFromMap(dep map[interface{}]interface{}) (*DependencyCon
 				consumes[k] = vStr
 			}
 		} else if key == "scopes" {
-			s, err := parseScopesFromInterface(val)
+			s, err := scopes.NewScopesFromInterface(val)
 			if err != nil {
 				return nil, err
 			}
-			scopes = s
+			depScopes = s
 		}
 	}
 	if releaseId == "" {
@@ -319,7 +347,7 @@ func NewDependencyConfigFromMap(dep map[interface{}]interface{}) (*DependencyCon
 	cfg.VariableName = variable
 	cfg.BuildMapping = buildMapping
 	cfg.DeployMapping = deployMapping
-	cfg.Scopes = scopes
+	cfg.Scopes = depScopes
 	cfg.Consumes = consumes
 	return cfg, nil
 }

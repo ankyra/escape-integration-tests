@@ -2,7 +2,7 @@
 date: 2017-11-11 00:00:00
 title: "Templates"
 slug: templates
-type: "docs"
+type: "reference"
 toc: true
 wip: false
 contributeLink: https://github.com/ankyra/escape-core/blob/master/templates/templates.go
@@ -23,6 +23,6 @@ Field | Type | Description
 |file|`string`|The file containing the template. This field is required. 
 |target|`string`|The target location for the rendered template. If the source location specified in `file` has the `.tpl` extension this `target` will default to source location minus that extension. 
 |||For example: if `file` is `"hello.txt.tpl"` then the default value for target will be `"hello.txt"` 
-|scopes|`[string]`|A list of scopes (`build`, `deploy`) that defines during which stage(s) the template should be rendered. 
+|scopes|`scopes.Scopes`|A list of scopes (`build`, `deploy`) that defines during which stage(s) the template should be rendered. 
 |mapping|`{string:any}`|This mapping can be used to relate template variables to Escape variables. 
 

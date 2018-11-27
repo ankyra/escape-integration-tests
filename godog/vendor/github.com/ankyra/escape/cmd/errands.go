@@ -37,14 +37,14 @@ var errandsCmd = &cobra.Command{
 }
 
 func ListLocalErrands(state, environment, escapePlanLocation string) error {
-	if err := ProcessFlagsForContext(true); err != nil {
+	if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 		return err
 	}
 	return controllers.ErrandsController{}.List(context).Print(jsonFlag)
 }
 
 func ListDeployedErrands(state, environment, deployment string) error {
-	if err := ProcessFlagsForContext(false); err != nil {
+	if err := ProcessFlagsForContext(); err != nil {
 		return err
 	}
 	deplState, exists := context.GetEnvironmentState().Deployments[deployment]
@@ -109,7 +109,7 @@ var errandsRunCmd = &cobra.Command{
 	},
 }
 
-func RunDeployedErrand(deployment, errand string, parsedExtraVars map[string]string) error {
+func RunDeployedErrand(deployment, errand string, parsedExtraVars map[string]interface{}) error {
 	deplState := context.GetEnvironmentState().Deployments[deployment]
 	if deplState == nil {
 		return fmt.Errorf("The deployment '%s' could not be found in environment '%s'.", deployment, context.GetEnvironmentState().Name)
@@ -125,8 +125,8 @@ func RunDeployedErrand(deployment, errand string, parsedExtraVars map[string]str
 	return controllers.ErrandsController{}.RunRemoteErrand(context, errand, parsedExtraVars)
 }
 
-func RunLocalErrand(deployment, errand string, parsedExtraVars map[string]string) error {
-	if err := ProcessFlagsForContext(true); err != nil {
+func RunLocalErrand(deployment, errand string, parsedExtraVars map[string]interface{}) error {
+	if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 		return err
 	}
 

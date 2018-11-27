@@ -37,7 +37,7 @@ var depsFetchCmd = &cobra.Command{
 	Long:    ``,
 	PreRunE: NoExtraArgsPreRunE,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := ProcessFlagsForContext(true); err != nil {
+		if err := ProcessFlagsForContextAndLoadEscapePlan(); err != nil {
 			return err
 		}
 
@@ -48,5 +48,5 @@ var depsFetchCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(depsCmd)
 	depsCmd.AddCommand(depsFetchCmd)
-	setEscapePlanLocationFlag(depsCmd)
+	setEscapePlanLocationFlag(depsFetchCmd)
 }

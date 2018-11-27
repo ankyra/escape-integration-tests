@@ -48,6 +48,10 @@ includes:
 - file1.txt
 - "*.txt"
 
+generates: 
+- file2.txt
+- "*.exe"
+
 inputs:
 - input1
 - id: input2
@@ -72,6 +76,12 @@ outputs:
   type: string
   default: $test.outputs.test
 
+build_outputs:
+- build1
+
+deploy_outputs:
+- deploy1
+
 templates:
 - template.yml.tpl
 
@@ -89,6 +99,8 @@ deploy: deploy.sh
 post_deploy: post_deploy.sh
 pre_destroy: pre_destroy.sh
 destroy: destroy.sh
+activate_provider: activate.sh
+deactivate_provider: deactivate.sh
 post_destroy:
   cmd: docker
   args:

@@ -88,9 +88,9 @@ func (e *environmentBuilder) GetPreDependencyInputs(ctx *RunnerContext, stage st
 	return inputs, nil
 }
 
-func (e *environmentBuilder) GetInputsForDependency(ctx *RunnerContext, stage string, mapping map[string]interface{}, parentInputs map[string]interface{}) (map[string]interface{}, error) {
+func (e *environmentBuilder) GetInputsForDependency(ctx *RunnerContext, parentStage string, mapping map[string]interface{}, parentInputs map[string]interface{}) (map[string]interface{}, error) {
 	inputs := map[string]interface{}{}
-	scriptEnv, err := ctx.GetScriptEnvironmentForPreDependencyStep(stage)
+	scriptEnv, err := ctx.GetScriptEnvironmentForPreDependencyStep(parentStage)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (e *environmentBuilder) GetInputsForDependency(ctx *RunnerContext, stage st
 	return inputs, nil
 }
 
-func (e *environmentBuilder) GetInputsForErrand(ctx *RunnerContext, errand *core.Errand, extraVars map[string]string) (map[string]interface{}, error) {
+func (e *environmentBuilder) GetInputsForErrand(ctx *RunnerContext, errand *core.Errand, extraVars map[string]interface{}) (map[string]interface{}, error) {
 	deplState := ctx.GetDeploymentState()
 	inputs := deplState.GetCalculatedInputs("deploy")
 	for key, val := range extraVars {

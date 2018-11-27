@@ -17,6 +17,10 @@ limitations under the License.
 package api
 
 var LogMessages = map[string]map[string]string{
+	"application.exit": map[string]string{
+		"msg":   "",
+		"level": "success",
+	},
 	"package.finished": map[string]string{
 		"msg":   "Packaged {{ .release }} at {{ .path }}",
 		"level": "success",
@@ -319,6 +323,11 @@ var LogMessages = map[string]map[string]string{
 		"level":    "error",
 		"collapse": "false",
 	},
+	"info": map[string]string{
+		"msg":      "{{ .message }}",
+		"level":    "info",
+		"collapse": "false",
+	},
 	"fetch.download_from_gcs": map[string]string{
 		"msg":   "Downloading {{ .release }} from {{ .gcs_path }} into {{ .target_dir }}.",
 		"level": "info",
@@ -371,6 +380,22 @@ var LogMessages = map[string]map[string]string{
 		"level":    "info",
 		"collapse": "false",
 	},
+	"provider.activate": map[string]string{
+		"msg":   "Activating provider {{ .consumes }} (${{ .variable}})",
+		"level": "info",
+	},
+	"provider.deactivate": map[string]string{
+		"msg":   "Deactivating provider {{ .consumes }} (${{ .variable}})",
+		"level": "info",
+	},
+	"provider.activate.finished": map[string]string{
+		"msg":   "Activated provider {{ .consumes }} (${{ .variable}})",
+		"level": "success",
+	},
+	"provider.deactivate.finished": map[string]string{
+		"msg":   "Deactivated provider {{ .consumes }} (${{ .variable}})",
+		"level": "success",
+	},
 	"push.finished": map[string]string{
 		"msg":   "Push successful.",
 		"level": "success",
@@ -386,6 +411,14 @@ var LogMessages = map[string]map[string]string{
 	"release.finished": map[string]string{
 		"msg":   "Successfully released {{.release}}",
 		"level": "success",
+	},
+	"release.tag": map[string]string{
+		"msg":   "Tagging current git commit with '{{.release}}'.",
+		"level": "info",
+	},
+	"release.tag_push": map[string]string{
+		"msg":   "Pushing git tags.",
+		"level": "info",
 	},
 	"release.start": map[string]string{
 		"msg":   "Releasing {{.release}}",

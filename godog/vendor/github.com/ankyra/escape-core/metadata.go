@@ -56,6 +56,7 @@ type ReleaseMetadata struct {
 	RevisionAuthor         string            `json:"revision_author"`
 	Metadata               map[string]string `json:"metadata"`
 	Version                string            `json:"version"`
+	Generates              []string          `json:"generates"`
 
 	Consumes  []*ConsumerConfig     `json:"consumes"`
 	Downloads []*DownloadConfig     `json:"downloads"`
@@ -82,6 +83,7 @@ func NewEmptyReleaseMetadata() *ReleaseMetadata {
 		BuiltWithCoreVersion: CoreVersion,
 		Files:                map[string]string{},
 		Metadata:             map[string]string{},
+		Generates:            []string{},
 
 		Consumes:    []*ConsumerConfig{},
 		Depends:     []*DependencyConfig{},
@@ -142,6 +144,9 @@ func validate(m *ReleaseMetadata) error {
 	}
 	if m.Project == "" {
 		m.Project = "_"
+	}
+	if m.Generates == nil {
+		m.Generates = []string{}
 	}
 	if err := ValidateProjectName(m.Project); err != nil {
 		return err
@@ -334,6 +339,20 @@ func (m *ReleaseMetadata) GetInputs(stage string) []*variables.Variable {
 	return result
 }
 
+func (m *ReleaseMetadata) GetInputsInScopes(stages []string) []*variables.Variable {
+	result := []*variables.Variable{}
+	for _, i := range m.Inputs {
+		inScope := true
+		for _, stage := range stages {
+			inScope = inScope && i.InScope(stage)
+		}
+		if inScope {
+			result = append(result, i)
+		}
+	}
+	return result
+}
+
 func (m *ReleaseMetadata) GetOutputs(stage string) []*variables.Variable {
 	result := []*variables.Variable{}
 	for _, i := range m.Outputs {
@@ -441,6 +460,10 @@ func (m *ReleaseMetadata) AddFileWithDigest(path, hexDigest string) {
 	m.Files[path] = hexDigest
 }
 
+func (m *ReleaseMetadata) AddGlobPatternToGenerates(globPattern string) {
+	m.Generates = append(m.Generates, globPattern)
+}
+
 func (m *ReleaseMetadata) ToDependency() *Dependency {
 	return NewDependencyFromMetadata(m)
 }
@@ -485,6 +508,8 @@ func (m *ReleaseMetadata) ToScriptMap() map[string]script.Script {
 		"logo":                script.LiftString(m.Logo),
 		"name":                script.LiftString(m.Name),
 		"revision":            script.LiftString(m.Revision),
+		"revision_message":    script.LiftString(m.RevisionMessage),
+		"revision_author":     script.LiftString(m.RevisionAuthor),
 		"repository":          script.LiftString(m.Repository),
 		"version":             script.LiftString(m.Version),
 		"release":             script.LiftString(m.GetReleaseId()),

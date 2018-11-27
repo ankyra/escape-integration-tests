@@ -17,8 +17,45 @@ limitations under the License.
 package core
 
 import (
+	"github.com/ankyra/escape-core/scopes"
 	. "gopkg.in/check.v1"
 )
+
+func (s *metadataSuite) Test_DependencyConfig_Copy(c *C) {
+	dep, err := NewDependencyConfigFromMap(map[interface{}]interface{}{
+		"release_id":      "test-latest",
+		"deployment_name": "my-deployment",
+		"variable":        "my-variable",
+		"build_mapping": map[interface{}]interface{}{
+			"build": "building",
+		},
+		"deploy_mapping": map[interface{}]interface{}{
+			"deploy": "deploying",
+		},
+		"mapping": map[interface{}]interface{}{
+			"input_variable1": "test",
+		},
+		"scopes": []interface{}{"build"},
+		"consumes": map[interface{}]interface{}{
+			"test": "whatver",
+		},
+	})
+	c.Assert(err, IsNil)
+	dep = dep.Copy()
+	c.Assert(dep.ReleaseId, Equals, "test-latest")
+	c.Assert(dep.VariableName, Equals, "my-variable")
+	c.Assert(dep.DeploymentName, Equals, "my-deployment")
+	c.Assert(dep.BuildMapping, Not(IsNil))
+	c.Assert(dep.BuildMapping, HasLen, 2)
+	c.Assert(dep.BuildMapping["input_variable1"], Equals, "test")
+	c.Assert(dep.BuildMapping["build"], Equals, "building")
+	c.Assert(dep.DeployMapping, Not(IsNil))
+	c.Assert(dep.DeployMapping, HasLen, 2)
+	c.Assert(dep.DeployMapping["input_variable1"], Equals, "test")
+	c.Assert(dep.DeployMapping["deploy"], Equals, "deploying")
+	c.Assert(dep.Scopes, DeepEquals, scopes.BuildScopes)
+	c.Assert(dep.Consumes, DeepEquals, map[string]string{"test": "whatver"})
+}
 
 func (s *metadataSuite) Test_NewDependencyConfig_Validate_happy_path(c *C) {
 	metadata := NewReleaseMetadata("name", "1.0")
@@ -35,7 +72,7 @@ func (s *metadataSuite) Test_NewDependencyConfig_Validate_happy_path(c *C) {
 	c.Assert(dep.BuildMapping, HasLen, 0)
 	c.Assert(dep.DeployMapping, Not(IsNil))
 	c.Assert(dep.DeployMapping, HasLen, 0)
-	c.Assert(dep.Scopes, DeepEquals, []string{"build", "deploy"})
+	c.Assert(dep.Scopes, DeepEquals, scopes.AllScopes)
 	c.Assert(dep.Consumes, DeepEquals, map[string]string{})
 }
 
@@ -72,6 +109,7 @@ func (s *metadataSuite) Test_NewDependencyConfig_fails_if_version_needs_resolvin
 		"my-dependency-v0.@":   "_/my-dependency-v0.@",
 		"my-dependency-v@":     "_/my-dependency-latest",
 		"my-dependency-@":      "_/my-dependency-latest",
+		"my-dependency:tag":    "_/my-dependency:tag",
 	}
 	for test, normalized := range cases {
 		metadata := NewReleaseMetadata("name", "1.0")
@@ -84,10 +122,11 @@ func (s *metadataSuite) Test_NewDependencyConfig_fails_if_version_needs_resolvin
 
 func (s *metadataSuite) Test_NewDependencyConfig_EnsureConfigIsParsed(c *C) {
 	cases := [][]string{
-		[]string{"my-dependency-v1.0", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", ""},
-		[]string{"_/my-dependency-v1.0", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", ""},
-		[]string{"  _/my-dependency-v1.0  ", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", ""},
-		[]string{"my-dependency-v1.0 as dep", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", "dep"},
+		[]string{"my-dependency-v1.0", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", "", ""},
+		[]string{"_/my-dependency-v1.0", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", "", ""},
+		[]string{"  _/my-dependency-v1.0  ", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", "", ""},
+		[]string{"my-dependency-v1.0 as dep", "_/my-dependency-v1.0", "_", "my-dependency", "1.0", "dep", ""},
+		[]string{"my-dependency:tag as dep", "_/my-dependency:tag", "_", "my-dependency", "", "dep", "tag"},
 	}
 	for _, test := range cases {
 		dep := NewDependencyConfig(test[0])
@@ -98,6 +137,7 @@ func (s *metadataSuite) Test_NewDependencyConfig_EnsureConfigIsParsed(c *C) {
 		c.Assert(dep.Name, Equals, test[3])
 		c.Assert(dep.Version, Equals, test[4])
 		c.Assert(dep.VariableName, Equals, test[5])
+		c.Assert(dep.Tag, Equals, test[6])
 		c.Assert(dep.DeploymentName, Equals, "")
 	}
 }
@@ -154,7 +194,7 @@ func (s *metadataSuite) Test_NewDependencyConfigFromMap(c *C) {
 	c.Assert(dep.DeployMapping, HasLen, 2)
 	c.Assert(dep.DeployMapping["input_variable1"], Equals, "test")
 	c.Assert(dep.DeployMapping["deploy"], Equals, "deploying")
-	c.Assert(dep.Scopes, DeepEquals, []string{"build"})
+	c.Assert(dep.Scopes, DeepEquals, scopes.BuildScopes)
 	c.Assert(dep.Consumes, DeepEquals, map[string]string{"test": "whatver"})
 }
 
