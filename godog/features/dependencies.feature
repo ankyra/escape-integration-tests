@@ -15,6 +15,15 @@ Feature: Dependencies
       Then "_/my-release" version "0.0.0" is present in the build state
        And "_/my-second-dependency" version "0.0.0" is present in its deployment state
 
+    Scenario: Build with dependencies (using :v1.0 format)
+      Given a new Escape plan called "my-dependency"
+        And I release the application
+      Given a new Escape plan called "my-release"
+        And it has "my-dependency:v0.0.0" as a dependency 
+      When I build the application
+      Then "_/my-release" version "0.0.0" is present in the build state
+       And "_/my-dependency" version "0.0.0" is present in its deployment state
+
     Scenario: Default input variables update for dependencies on every build
       Given a new Escape plan called "my-input-dependency"
         And input variable "input_variable" with default "test"
